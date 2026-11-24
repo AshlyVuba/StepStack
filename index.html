@@ -7,6 +7,7 @@
   <title>StepStack – Get started</title>
   <link rel="stylesheet" href="src/css/onboarding.css">
   <script type="module" src="src/js/onboarding.js"></script>
+  <script type="module" src="src/js/workspace.js"></script>
 </head>
 <body>
   <main class="wrap">
@@ -48,6 +49,31 @@
         <button type="button" id="restart">Change my setup</button>
         <button type="button" id="continue" class="primary">Continue</button>
       </div>
+    </section>
+
+    <section id="workspace" hidden>
+      <div class="lang-bar" role="group" aria-labelledby="ws-lang-label">
+        <span id="ws-lang-label" data-i18n="language"></span>
+        <div id="ws-langs"></div>
+      </div>
+      <progress id="ws-progress" max="3" value="0" aria-labelledby="ws-progress-text"></progress>
+      <p id="ws-progress-text"></p>
+      <ol id="ws-stages"></ol>
+      <article>
+        <p id="ws-kicker" class="kicker"></p>
+        <h2 id="ws-title"></h2>
+        <p id="ws-body"></p>
+        <button type="button" id="ws-hint-btn" data-i18n="hint"></button>
+        <p id="ws-hint" hidden></p>
+        <label class="plain" id="ws-answer-label" for="ws-input" data-i18n="answer"></label>
+        <input id="ws-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <textarea id="ws-textarea" rows="5" hidden></textarea>
+        <div class="actions">
+          <button type="button" id="ws-next" hidden data-i18n="next"></button>
+          <button type="button" id="ws-check" class="primary" data-i18n="check"></button>
+        </div>
+        <p id="ws-feedback" role="status"></p>
+      </article>
     </section>
   </main>
 </body>

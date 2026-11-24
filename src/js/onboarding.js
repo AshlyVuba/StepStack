@@ -107,8 +107,9 @@ form.addEventListener('submit', (e) => {
 
 $('restart').addEventListener('click', () => { profile = {}; clearProfile(); showForm(); });
 
-// Placeholder: later issues will route into the exercise engine.
+// Hands the learner profile to the exercise workspace (workspace.js).
 $('continue').addEventListener('click', () => {
+  welcome.hidden = true;
   document.dispatchEvent(new CustomEvent('stepstack:onboarded', { detail: profile }));
 });
 

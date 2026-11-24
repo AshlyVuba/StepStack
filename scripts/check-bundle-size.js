@@ -1,11 +1,11 @@
-// Fails if the initial payload (HTML + CSS + JS, gzipped) exceeds the budget.
+// Fails if the shipped payload (HTML + CSS + JS, gzipped) exceeds the budget.
 // Usage: node scripts/check-bundle-size.js
 const fs = require('fs');
 const zlib = require('zlib');
+const { clientFiles } = require('./lib');
 const BUDGET_KB = 15;
-const files = ['index.html', 'src/css/onboarding.css', 'src/js/config.js', 'src/js/storage.js', 'src/js/onboarding.js'];
 let total = 0;
-for (const f of files) {
+for (const f of clientFiles()) {
   const gz = zlib.gzipSync(fs.readFileSync(f)).length;
   total += gz;
   console.log(`${f.padEnd(28)} ${(gz / 1024).toFixed(2)} KB gzip`);

@@ -20,3 +20,20 @@ export function clearProfile() {
   memory = null;
   try { localStorage.removeItem(KEY); } catch (e) { /* ignore */ }
 }
+
+// ---- Exercise progress (Issue #2) ----
+const PROGRESS_KEY = 'stepstack:progress:v1';
+let progressMemory = null;
+
+export function loadProgress() {
+  try {
+    const raw = localStorage.getItem(PROGRESS_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) { /* unavailable or corrupt */ }
+  return progressMemory;
+}
+
+export function saveProgress(progress) {
+  progressMemory = progress;
+  try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress)); } catch (e) { /* keep memory copy */ }
+}

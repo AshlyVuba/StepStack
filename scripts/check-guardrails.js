@@ -1,17 +1,21 @@
-// Enforces the Issue #1 guardrail: no heavy third-party UI libraries.
-// Fails if index.html pulls scripts/styles from another origin, or if
-// package.json declares runtime "dependencies".
+// Enforces the guardrails from Issues #1 and #2:
+//  - no heavy third-party UI libraries (external resources, package imports, runtime deps)
+//  - no raw HTML injection or dynamic code execution in client JS
 const fs = require('fs');
+const { clientFiles } = require('./lib');
 const errors = [];
 
 const html = fs.readFileSync('index.html', 'utf8');
-const external = html.match(/<(?:script|link)[^>]+(?:src|href)=["']https?:\/\/[^"']+["']/gi) || [];
-external.forEach((tag) => errors.push(`External resource in index.html: ${tag}`));
+(html.match(/<(?:script|link)[^>]+(?:src|href)=["']https?:\/\/[^"']+["']/gi) || [])
+  .forEach((tag) => errors.push(`External resource in index.html: ${tag}`));
 
-for (const f of ['src/js/config.js', 'src/js/storage.js', 'src/js/onboarding.js']) {
+const FORBIDDEN = /\b(innerHTML|outerHTML|insertAdjacentHTML|dangerouslySetInnerHTML|document\.write(ln)?)\b|\beval\s*\(|\bnew\s+Function\s*\(/g;
+for (const f of clientFiles().filter((x) => x.endsWith('.js'))) {
   const src = fs.readFileSync(f, 'utf8');
-  const bare = src.match(/^\s*import\s[^'"]*['"](?![./])[^'"]+['"]/gm) || [];
-  bare.forEach((i) => errors.push(`Third-party import in ${f}: ${i.trim()}`));
+  (src.match(/^\s*import\s[^'"]*['"](?![./])[^'"]+['"]/gm) || [])
+    .forEach((i) => errors.push(`Third-party import in ${f}: ${i.trim()}`));
+  (src.match(FORBIDDEN) || [])
+    .forEach((m) => errors.push(`Unsafe API "${m}" in ${f}: render with textContent instead`));
 }
 
 if (fs.existsSync('package.json')) {
@@ -20,4 +24,4 @@ if (fs.existsSync('package.json')) {
 }
 
 if (errors.length) { errors.forEach((e) => console.error('✗ ' + e)); process.exit(1); }
-console.log('✓ Guardrails passed: no external resources or third-party imports');
+console.log('✓ Guardrails passed: no external resources, third-party imports or HTML injection');

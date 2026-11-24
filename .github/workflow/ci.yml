@@ -12,10 +12,12 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
       - name: JS syntax check
         run: npm run check:syntax
       - name: Guardrails (no third-party UI libraries)
         run: npm run check:guardrails
+      - name: Unit tests
+        run: npm test
       - name: Bundle size budget (15 KB gzip)
         run: npm run check:size
