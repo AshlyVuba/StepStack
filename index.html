@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f766e">
+  <title>StepStack – Get started</title>
+  <link rel="stylesheet" href="src/css/onboarding.css">
+  <script type="module" src="src/js/onboarding.js"></script>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <h1>StepStack</h1>
+      <p class="tag">Using small steps to improve your tech stack.</p>
+    </header>
+
+    <noscript><p class="notice">StepStack needs JavaScript to set up your learning path.</p></noscript>
+
+    <form id="onboarding" hidden novalidate>
+      <progress id="progress" max="3" value="1" aria-label="Setup progress"></progress>
+
+      <fieldset data-step="1">
+        <legend>Where are you starting?</legend>
+        <div class="options" id="opts-tier"></div>
+      </fieldset>
+
+      <fieldset data-step="2" hidden>
+        <legend>How comfortable are you now?</legend>
+        <div class="options" id="opts-level"></div>
+      </fieldset>
+
+      <fieldset data-step="3" hidden>
+        <legend>Which language do you think in?</legend>
+        <div class="options grid" id="opts-lang"></div>
+      </fieldset>
+
+      <nav class="actions">
+        <button type="button" id="back" hidden>Back</button>
+        <button type="submit" id="done" hidden>Start learning</button>
+      </nav>
+    </form>
+
+    <section id="welcome" hidden aria-live="polite">
+      <h2>Welcome back</h2>
+      <p id="summary"></p>
+      <div class="actions">
+        <button type="button" id="restart">Change my setup</button>
+        <button type="button" id="continue" class="primary">Continue</button>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
