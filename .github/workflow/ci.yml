@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: JS syntax check
+        run: npm run check:syntax
+      - name: Guardrails (no third-party UI libraries)
+        run: npm run check:guardrails
+      - name: Bundle size budget (15 KB gzip)
+        run: npm run check:size
