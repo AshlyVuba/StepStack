@@ -5,9 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0f766e">
   <title>StepStack – Get started</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png">
   <link rel="stylesheet" href="src/css/onboarding.css">
-  <script type="module" src="src/js/onboarding.js"></script>
-  <script type="module" src="src/js/workspace.js"></script>
+  <script type="module" src="src/js/main.js"></script>
 </head>
 <body>
   <main class="wrap">
@@ -15,6 +16,45 @@
       <h1>StepStack</h1>
       <p class="tag">Using small steps to improve your tech stack.</p>
     </header>
+
+    <div id="session-bar">
+      <p id="net-status" role="status" hidden>You are offline. Your work is saved on this device and will sync when you are back online.</p>
+      <p id="persist-warning" role="status" hidden>Your browser is blocking local storage, so progress will be lost when you close this tab.</p>
+      <p id="idle-warning" role="alert" hidden>You will be logged out soon because of inactivity. Tap or press any key to stay signed in.</p>
+      <button type="button" id="logout" hidden>Log out</button>
+    </div>
+
+    <section id="setup" hidden>
+      <h2>Before you start</h2>
+      <form id="setup-form" novalidate>
+        <fieldset>
+          <legend>Whose device is this?</legend>
+          <div class="options">
+            <label><input type="radio" name="device" value="personal" checked><span>My own device</span><small>Your progress is saved encrypted on this device.</small></label>
+            <label><input type="radio" name="device" value="shared"><span>A shared computer (school, library)</span><small>Protected by a passcode, and you are logged out when idle.</small></label>
+          </div>
+        </fieldset>
+        <div id="setup-pass" hidden>
+          <label class="plain" for="setup-passcode">Choose a passcode (at least 6 characters)</label>
+          <input id="setup-passcode" type="password" autocomplete="new-password">
+        </div>
+        <p id="setup-msg" role="alert"></p>
+        <div class="actions"><button type="submit" class="primary">Continue</button></div>
+      </form>
+    </section>
+
+    <section id="unlock" hidden>
+      <h2>Enter your passcode</h2>
+      <form id="unlock-form" novalidate>
+        <label class="plain" for="unlock-pass">Passcode</label>
+        <input id="unlock-pass" type="password" autocomplete="current-password">
+        <p id="unlock-msg" role="alert"></p>
+        <div class="actions">
+          <button type="button" id="unlock-erase">Erase data on this device</button>
+          <button type="submit" class="primary">Unlock</button>
+        </div>
+      </form>
+    </section>
 
     <noscript><p class="notice">StepStack needs JavaScript to set up your learning path.</p></noscript>
 

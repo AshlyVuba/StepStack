@@ -7,10 +7,16 @@
     "check:syntax": "for f in src/js/*.js; do node --check --input-type=module < \"$f\" || exit 1; done",
     "check:size": "node scripts/check-bundle-size.js",
     "check:guardrails": "node scripts/check-guardrails.js",
-    "ci": "npm run check:syntax && npm run check:guardrails && npm run check:size && npm test",
-    "test": "node --test \"tests/*.test.mjs\""
+    "ci": "npm run check:syntax && npm run check:guardrails && npm run check:pwa && npm run check:size && npm test",
+    "test": "node --test \"tests/*.test.mjs\"",
+    "check:pwa": "node scripts/check-pwa.js"
   },
   "engines": {
     "node": ">=22"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "fake-indexeddb": "^6.2.8",
+    "jsdom": "^31.0.1"
   }
 }

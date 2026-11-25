@@ -8,8 +8,9 @@ const steps = [...form.querySelectorAll('fieldset')];
 const FIELDS = ['tier', 'level', 'language'];
 const find = (list, key, val) => list.find((x) => x[key] === val);
 
-let profile = loadProfile() || {};
+let profile = {};
 let step = 0;
+let epoch = 0;   // bumped on logout so a slow load cannot repopulate a cleared page
 
 function render(container, name, items, labelOf, hintOf, keyName) {
   const frag = document.createDocumentFragment();
@@ -113,4 +114,22 @@ $('continue').addEventListener('click', () => {
   document.dispatchEvent(new CustomEvent('stepstack:onboarded', { detail: profile }));
 });
 
-if (profile.completedAt && isComplete()) showWelcome(); else showForm();
+export async function startOnboarding() {
+  const mine = epoch;
+  const saved = await loadProfile();
+  if (mine !== epoch) return;
+  profile = saved || {};
+  if (profile.completedAt && isComplete()) showWelcome(); else showForm();
+}
+
+// Wipes everything this module holds in memory and on the page (used on logout).
+export function clearOnboarding() {
+  epoch += 1;
+  profile = {};
+  step = 0;
+  form.hidden = true;
+  welcome.hidden = true;
+  $('summary').textContent = '';
+  ['opts-tier', 'opts-level', 'opts-lang'].forEach((id) => $(id).replaceChildren());
+  document.documentElement.lang = 'en';
+}

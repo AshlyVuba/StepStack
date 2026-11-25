@@ -13,11 +13,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
+      - name: Install dev dependencies (tests only; nothing ships to users)
+        run: npm ci
       - name: JS syntax check
         run: npm run check:syntax
-      - name: Guardrails (no third-party UI libraries)
+      - name: Guardrails (no third-party libs, HTML injection or unencrypted storage)
         run: npm run check:guardrails
-      - name: Unit tests
+      - name: PWA check (offline cache list and manifest)
+        run: npm run check:pwa
+      - name: Unit and end-to-end tests
         run: npm test
-      - name: Bundle size budget (15 KB gzip)
+      - name: Bundle size budget
         run: npm run check:size
