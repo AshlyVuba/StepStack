@@ -1,0 +1,8 @@
+{
+  "id": "sum-basic", "title": "Total the sales in B1:B5 in cell B6",
+  "answerCells": ["B6"], "allowedFunctions": ["SUM"], "requiredFunctions": ["SUM"],
+  "cases": [
+    { "cells": { "B1": 10, "B2": 20, "B3": 30, "B4": 40, "B5": 50 }, "expected": { "B6": 150 } },
+    { "cells": { "B1": 1, "B2": 2, "B3": 3, "B4": 4, "B5": 5 }, "expected": { "B6": 15 } }
+  ]
+}

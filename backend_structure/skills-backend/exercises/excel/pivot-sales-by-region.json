@@ -1,0 +1,12 @@
+{
+  "id": "pivot-sales-by-region", "title": "Pivot logic: total sales per region. Regions are in D2:D4, source data in A2:B7 (Region, Sales). Fill E2:E4.",
+  "answerCells": ["E2", "E3", "E4"], "allowedFunctions": ["SUMIF", "SUMIFS", "SUM", "IF"], "requiredFunctions": ["SUMIF"],
+  "cases": [
+    { "cells": { "A1": "Region", "B1": "Sales", "A2": "North", "B2": 100, "A3": "South", "B3": 50, "A4": "North", "B4": 25, "A5": "East", "B5": 70, "A6": "South", "B6": 10, "A7": "East", "B7": 5,
+                 "D2": "North", "D3": "South", "D4": "East" },
+      "expected": { "E2": 125, "E3": 60, "E4": 75 } },
+    { "cells": { "A1": "Region", "B1": "Sales", "A2": "North", "B2": 1, "A3": "South", "B3": 2, "A4": "North", "B4": 3, "A5": "East", "B5": 4, "A6": "South", "B6": 5, "A7": "East", "B7": 6,
+                 "D2": "North", "D3": "South", "D4": "East" },
+      "expected": { "E2": 4, "E3": 7, "E4": 10 } }
+  ]
+}
