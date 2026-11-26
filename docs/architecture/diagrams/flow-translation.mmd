@@ -1,0 +1,29 @@
+sequenceDiagram
+  participant C as Client (future caller)
+  participant R as POST /v1/translate
+  participant S as TranslationService
+  participant K as Redis cache
+  participant L as Anthropic API
+  C->>R: text, targetLang, kind
+  Note over R: Validate (up to 5,000 chars, 5 languages)
+  R->>S: translate(text, lang, kind)
+  Note over S: Sanitize text, then build cache key: tr: + SHA-256 of prompt version, model, language, text
+  alt kind is lesson
+    S->>K: GET key
+    alt cache hit
+      K-->>S: stored translation
+      S-->>C: translation, cached true
+    else cache miss
+      Note over S: Identical concurrent requests share one in-flight call
+      Note over S: protect(): swap code and formulas for numbered placeholders
+      S->>L: system prompt + text to translate
+      L-->>S: translated text
+      Note over S: restore(): every placeholder back? If not, retry once, then 502
+      S->>K: SET key with 30-day TTL
+      S-->>C: translation, cached false
+    end
+  else kind is learner
+    Note over S,K: Free-form learner text is never cached
+    S->>L: same protect, call and restore steps
+    S-->>C: translation, cached false
+  end

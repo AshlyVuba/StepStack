@@ -1,0 +1,20 @@
+sequenceDiagram
+  actor L as Learner
+  participant UI as workspace.js
+  participant G as grading.js
+  participant Q as queue.js
+  participant V as vault.js + crypto.js
+  participant DB as IndexedDB
+  L->>UI: Type an answer and press Check
+  UI->>G: grade(exercise, answer)
+  G-->>UI: correct or incorrect
+  opt correct, and first time for this stage
+    UI->>Q: enqueue stage-complete event
+    Q->>V: queueAdd(event)
+    V->>DB: AES-GCM encrypt, add to queue store
+  end
+  UI->>V: save progress
+  V->>DB: AES-GCM encrypt, put in data store
+  UI-->>L: Feedback and progress bar update
+  Note over UI,DB: No network call is made. The event waits, encrypted, in IndexedDB.
+  Note over UI,DB: flush() runs on the browser online event, but only sends if a sender is registered through setSender(). None is registered yet.

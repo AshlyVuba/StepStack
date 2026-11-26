@@ -1,0 +1,25 @@
+sequenceDiagram
+  participant LMS as Internal service (not in this repo)
+  participant API as Portfolio routes
+  participant DB as PostgreSQL (portfolios)
+  actor E as Employer or anyone with the link
+  LMS->>API: POST /v1/capstones/complete with x-internal-key
+  Note over API: Constant-time key check, validate body
+  API->>DB: INSERT, ON CONFLICT (learner_id, capstone_id) no-op, RETURNING row
+  DB-->>API: new or existing row
+  Note over API: Sign token v1.payload.HMAC-SHA256
+  API-->>LMS: 201 portfolioUrl and verifyUrl
+  E->>API: GET /v1/verify/token
+  Note over API: Verify signature (current key, then previous key)
+  alt bad signature
+    API-->>E: 404 verified false
+  else signature valid
+    API->>DB: SELECT by portfolio id
+    alt unknown id
+      API-->>E: 404 verified false (identical response)
+    else revoked
+      API-->>E: 410 verified false, reason revoked
+    else valid
+      API-->>E: 200 displayName, capstoneId, issuedAt, skills
+    end
+  end

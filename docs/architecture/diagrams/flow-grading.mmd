@@ -1,0 +1,22 @@
+sequenceDiagram
+  participant C as Client (future caller)
+  participant API as Fastify API
+  participant EX as ExerciseStore (JSON files)
+  participant P as SandboxPool
+  participant W as Pyodide worker (single-use process)
+  C->>API: POST /v1/grade/python (exerciseId, code)
+  Note over API: Rate limit 20 per minute per IP, validate (code up to 10,000 chars)
+  API->>EX: look up exercise
+  EX-->>API: function name and tests (answers stay on the server)
+  API->>P: run(code, function, tests)
+  P->>W: take a warm worker, spawn a replacement
+  P->>W: send submission as one JSON line
+  Note over W: AST gate, restricted builtins, run tests
+  alt finishes within the time box (default 1,500 ms)
+    W-->>P: status ok with per-test results
+  else time limit exceeded or crash
+    P-->>API: status timeout or crashed
+  end
+  P->>W: SIGKILL (a worker is never reused)
+  API-->>C: passed, status, feedback, tests, durationMs
+  Note over P,API: If 20 requests are already waiting for a worker, the API answers 503 busy.
