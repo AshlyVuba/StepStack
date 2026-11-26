@@ -1,0 +1,447 @@
+{
+  "foundational": [
+    {
+      "id": "f1",
+      "patterns": [
+        "^(ctrl|control|cmd|command)\\s*\\+\\s*c$"
+      ],
+      "translationStatus": {
+        "en": "needs-team-review",
+        "zu": "needs-fluent-review",
+        "af": "needs-fluent-review"
+      },
+      "text": {
+        "en": {
+          "title": "Copy shortcut",
+          "body": "On a Windows computer, type the keyboard shortcut that copies selected text.",
+          "hint": "Think of the first letter of \"copy\". Format: ctrl+?"
+        },
+        "zu": {
+          "title": "Isinqamuleli sokukopisha",
+          "body": "Kukhompyutha ye-Windows, thayipha isinqamuleli sekhibhodi esikopisha umbhalo okhethiwe.",
+          "hint": "Cabanga ngohlamvu lokuqala lwegama elithi \"copy\". Isimo: ctrl+?"
+        },
+        "af": {
+          "title": "Kopieer-kortpad",
+          "body": "Tik die sleutelbordkortpad wat gekose teks op ’n Windows-rekenaar kopieer.",
+          "hint": "Dink aan die eerste letter van \"copy\". Formaat: ctrl+?"
+        }
+      }
+    },
+    {
+      "id": "f2",
+      "patterns": [
+        "^leave-request\\.docx$"
+      ],
+      "translationStatus": {
+        "en": "needs-team-review",
+        "zu": "needs-fluent-review",
+        "af": "needs-fluent-review"
+      },
+      "text": {
+        "en": {
+          "title": "Save a work document",
+          "body": "You typed a leave request in Microsoft Word. Type the full file name to save it: use the name leave-request and add the Word document extension, including the dot.",
+          "hint": "The extension comes after the name and starts with a dot. Format: leave-request.????"
+        },
+        "zu": {
+          "title": "Londoloza idokhumenti yomsebenzi",
+          "body": "Ubhale isicelo sekhefu ku-Microsoft Word. Thayipha igama eliphelele lefayela ozolilondoloza ngalo: sebenzisa igama elithi leave-request, bese ufaka isandiso sedokhumenti ye-Word, kanye nechashazi.",
+          "hint": "Isandiso siza ngemva kwegama futhi siqala ngechashazi. Isimo: leave-request.????"
+        },
+        "af": {
+          "title": "Stoor ’n werkdokument",
+          "body": "Jy het ’n verlofaansoek in Microsoft Word getik. Tik die volledige lêernaam om dit te stoor: gebruik die naam leave-request en voeg die Word-dokument se lêeruitbreiding by, insluitend die punt.",
+          "hint": "Die uitbreiding kom ná die naam en begin met ’n punt. Formaat: leave-request.????"
+        }
+      }
+    },
+    {
+      "id": "f3",
+      "minLength": 20,
+      "gradingCriteria": {
+        "version": 1,
+        "status": "draft-not-yet-implemented",
+        "answerFormat": "multiline-text",
+        "passRule": "every-check-and-minLength",
+        "checks": [
+          {
+            "id": "subject",
+            "description": "Has a labelled subject line with some text after the label.",
+            "match": "any",
+            "flags": "im",
+            "patterns": [
+              "^\\s*(subject|onderwerp|isihloko)\\s*:[ \\t]*\\S.{2,}"
+            ]
+          },
+          {
+            "id": "greeting",
+            "description": "A line starts with a greeting.",
+            "match": "any",
+            "flags": "im",
+            "patterns": [
+              "^\\s*(dear|good (morning|afternoon|day)|hello|hi|geagte|beste|goeie (m[oô]re|middag|dag)|sawubona|mnumzane|nkosazana|nkosikazi|mhlonishwa|othandekayo)\\b"
+            ]
+          },
+          {
+            "id": "dates",
+            "description": "States the whole period, 7 to 11 December 2026, as one range including the year.",
+            "match": "any",
+            "flags": "i",
+            "patterns": [
+              "\\b0?7(?:st|nd|rd|th|de)?(?:\\s+(?:of\\s+)?(?:december|desember|disemba|dec\\.?|(?:ku)?zibandlela)(?:\\s+2026)?)?\\s*(?:to|until|till|through|and|tot|en|-|–|kuya(?:\\s+ku)?)\\s*(?:the\\s+|mhla\\s+)?(?:zi-)?11(?:st|nd|rd|th|de)?\\s+(?:of\\s+)?(?:december|desember|disemba|dec\\.?|(?:ku)?zibandlela),?\\s+2026\\b",
+              "\\b(?:december|desember|disemba|dec\\.?|(?:ku)?zibandlela)\\s+0?7(?:st|nd|rd|th|de)?(?:,?\\s+2026)?\\s*(?:to|until|till|through|and|tot|en|-|–|kuya(?:\\s+ku)?)\\s*(?:the\\s+|mhla\\s+)?(?:zi-)?(?:(?:december|desember|disemba|dec\\.?|(?:ku)?zibandlela)\\s+)?11(?:st|nd|rd|th|de)?,?\\s+2026\\b",
+              "\\b0?7[/.]12(?:[/.]2026)?\\s*(?:to|until|till|through|and|tot|en|-|–|kuya(?:\\s+ku)?)\\s*(?:the\\s+|mhla\\s+)?(?:zi-)?11[/.]12[/.]2026\\b",
+              "\\b2026-12-07\\s*(?:to|until|till|through|and|tot|en|-|–|kuya(?:\\s+ku)?)\\s*(?:the\\s+|mhla\\s+)?(?:zi-)?2026-12-11\\b"
+            ]
+          },
+          {
+            "id": "reason",
+            "description": "Gives a reason, signalled by a reason phrase.",
+            "match": "any",
+            "flags": "i",
+            "patterns": [
+              "\\b(because|due to|in order to|so that|to attend|reason|omdat|weens|rede|aangesien)\\b|ngoba|ngenxa|isizathu"
+            ]
+          },
+          {
+            "id": "cover",
+            "description": "Says who will cover the work.",
+            "match": "any",
+            "flags": "i",
+            "patterns": [
+              "\\b(cover|handle|take over|look after|stand in|waarneem|hanteer|oorneem|waarneming)\\b|\\bneem\\b.{0,60}\\bwaar\\b|bambela|uzokwenza umsebenzi|uzobheka"
+            ]
+          },
+          {
+            "id": "signoff",
+            "description": "A polite sign-off stands on its own line (an ordinary sentence starting 'Thank you for...' does not count).",
+            "match": "any",
+            "flags": "im",
+            "patterns": [
+              "^\\s*((kind |best |warm )?regards|yours (sincerely|faithfully)|sincerely|thank you|thanks|vriendelike groete|groete|die uwe|ozithobayo|yimina ozithobayo|ngiyabonga)[ \\t]*[,.!]?[ \\t]*$"
+            ]
+          }
+        ],
+        "manualReview": [
+          "Is the tone formal and respectful?",
+          "Are the leave dates, reason and cover person clear and sensible?"
+        ],
+        "examples": {
+          "pass": "Subject: Leave request, 7 to 11 December 2026\nDear Ms Dlamini,\nI would like to request leave from 7 to 11 December 2026 because I need to attend a family event. Sipho has agreed to cover my work while I am away.\nKind regards,\nThandi",
+          "incomplete": "Dear Ms Dlamini,\nI would like to request leave from 7 to 11 December 2026 because I need to attend a family event. I hope that this will be acceptable to you.\nKind regards,\nThandi",
+          "incorrect": "aaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      },
+      "translationStatus": {
+        "en": "needs-team-review",
+        "zu": "needs-fluent-review",
+        "af": "needs-fluent-review"
+      },
+      "text": {
+        "en": {
+          "title": "Email a leave request",
+          "body": "Write a formal email asking your manager for leave from 7 to 11 December 2026. Include a subject line, a greeting, the dates, a reason, who will cover your work and a polite sign-off. Write at least 20 characters.",
+          "hint": "Start with a clear subject line, then use short sentences."
+        },
+        "zu": {
+          "title": "Thumela isicelo sekhefu nge-imeyili",
+          "body": "Bhala i-imeyili esemthethweni ucela umphathi wakho ikhefu kusuka mhla zi-7 kuya mhla zi-11 kuZibandlela 2026. Faka isihloko, ukubingelela, izinsuku, isizathu, ozokwenza umsebenzi wakho ungekho, nokuvalelisa ngenhlonipho. Bhala okungenani izinhlamvu eziyi-20.",
+          "hint": "Qala ngesihloko esicacile, bese ubhala imisho emifushane."
+        },
+        "af": {
+          "title": "E-pos ’n verlofaansoek",
+          "body": "Skryf ’n formele e-pos waarin jy jou bestuurder vir verlof van 7 tot 11 Desember 2026 vra. Sluit ’n onderwerpreël, ’n aanhef, die datums, ’n rede, wie jou werk sal waarneem en ’n beleefde afsluiting in. Skryf minstens 20 karakters.",
+          "hint": "Begin met ’n duidelike onderwerpreël en gebruik dan kort sinne."
+        }
+      }
+    }
+  ],
+  "workplace": [
+    {
+      "id": "w1",
+      "patterns": [
+        "^=\\s*sum\\(\\s*a1\\s*:\\s*a5\\s*\\)$"
+      ],
+      "translationStatus": {
+        "en": "needs-team-review",
+        "zu": "needs-fluent-review",
+        "af": "needs-fluent-review"
+      },
+      "text": {
+        "en": {
+          "title": "Add with SUM",
+          "body": "Type an Excel formula that uses SUM to add cells A1 to A5.",
+          "hint": "Start with an equals sign. Format: =SUM(first:last)"
+        },
+        "zu": {
+          "title": "Hlanganisa nge-SUM",
+          "body": "Thayipha ifomula ye-Excel esebenzisa i-SUM ukuhlanganisa amangqamuzana kusuka ku-A1 kuya ku-A5.",
+          "hint": "Qala ngophawu olulinganayo. Isimo: =SUM(elokuqala:elokugcina)"
+        },
+        "af": {
+          "title": "Tel op met SUM",
+          "body": "Tik ’n Excel-formule wat SUM gebruik om selle A1 tot A5 bymekaar te tel.",
+          "hint": "Begin met ’n gelykaanteken. Formaat: =SUM(eerste:laaste)"
+        }
+      }
+    },
+    {
+      "id": "w2",
+      "patterns": [
+        "^=\\s*average\\(\\s*b2\\s*:\\s*b10\\s*\\)$"
+      ],
+      "translationStatus": {
+        "en": "needs-team-review",
+        "zu": "needs-fluent-review",
+        "af": "needs-fluent-review"
+      },
+      "text": {
+        "en": {
+          "title": "Report average sales",
+          "body": "Your manager wants to know the average sale. The sales amounts are in cells B2 to B10. Type the formula that calculates the average.",
+          "hint": "Use the Excel function for an average, and give it the first and last cell."
+        },
+        "zu": {
+          "title": "Bika isilinganiso sokuthengisa",
+          "body": "Umphathi wakho ufuna ukwazi isilinganiso sokuthengisa. Amanani okuthengisa akumangqamuzana B2 kuya ku-B10. Thayipha ifomula ekhipha isilinganiso.",
+          "hint": "Sebenzisa umsebenzi we-Excel wesilinganiso, uwunike ingqamuzana lokuqala nelokugcina."
+        },
+        "af": {
+          "title": "Rapporteer gemiddelde verkope",
+          "body": "Jou bestuurder wil weet wat die gemiddelde verkoop is. Die verkoopsbedrae is in selle B2 tot B10. Tik die formule wat die gemiddelde bereken.",
+          "hint": "Gebruik die Excel-funksie vir ’n gemiddelde en gee vir dit die eerste en laaste sel."
+        }
+      }
+    },
+    {
+      "id": "w3",
+      "minLength": 20,
+      "gradingCriteria": {
+        "version": 1,
+        "status": "draft-not-yet-implemented",
+        "answerFormat": "multiline-text-with-formulas",
+        "passRule": "every-check-and-minLength",
+        "referenceValues": {
+          "B7": 16500,
+          "B8": 3500
+        },
+        "checks": [
+          {
+            "id": "total",
+            "description": "The formula assigned to B7 (on the same line) adds B3 to B6 and nothing else. Accepts 'B7: =...' or '=... in B7'.",
+            "match": "any",
+            "flags": "im",
+            "patterns": [
+              "^[ \\t]*(?:(?:in|cell|sel)[ \\t]+|ku-?)?b7[ \\t]*(?:[:\\-–][ \\t]*)?=[ \\t]*(?:sum\\([ \\t]*b3[ \\t]*:[ \\t]*b6[ \\t]*\\)|sum\\([ \\t]*b3[ \\t]*,[ \\t]*b4[ \\t]*,[ \\t]*b5[ \\t]*,[ \\t]*b6[ \\t]*\\)|b3[ \\t]*\\+[ \\t]*b4[ \\t]*\\+[ \\t]*b5[ \\t]*\\+[ \\t]*b6)[ \\t]*[.;]?[ \\t]*$",
+              "=[ \\t]*(?:sum\\([ \\t]*b3[ \\t]*:[ \\t]*b6[ \\t]*\\)|sum\\([ \\t]*b3[ \\t]*,[ \\t]*b4[ \\t]*,[ \\t]*b5[ \\t]*,[ \\t]*b6[ \\t]*\\)|b3[ \\t]*\\+[ \\t]*b4[ \\t]*\\+[ \\t]*b5[ \\t]*\\+[ \\t]*b6)[ \\t]+(?:(?:in|into)[ \\t]+(?:(?:cell|sel)[ \\t]+)?|ku-?)b7\\b"
+            ]
+          },
+          {
+            "id": "remaining",
+            "description": "The formula assigned to B8 (on the same line) is income minus total expenses. Accepts 'B8: =...' or '=... in B8'.",
+            "match": "any",
+            "flags": "im",
+            "patterns": [
+              "^[ \\t]*(?:(?:in|cell|sel)[ \\t]+|ku-?)?b8[ \\t]*(?:[:\\-–][ \\t]*)?=[ \\t]*(?:b2[ \\t]*-[ \\t]*b7|b2[ \\t]*-[ \\t]*sum\\([ \\t]*b3[ \\t]*:[ \\t]*b6[ \\t]*\\))[ \\t]*[.;]?[ \\t]*$",
+              "=[ \\t]*(?:b2[ \\t]*-[ \\t]*b7|b2[ \\t]*-[ \\t]*sum\\([ \\t]*b3[ \\t]*:[ \\t]*b6[ \\t]*\\))[ \\t]+(?:(?:in|into)[ \\t]+(?:(?:cell|sel)[ \\t]+)?|ku-?)b8\\b"
+            ]
+          },
+          {
+            "id": "warning",
+            "description": "States a condition that compares expenses with income (IF formula or conditional formatting).",
+            "match": "any",
+            "flags": "i",
+            "patterns": [
+              "(\\bif\\s*\\(|conditional format\\w*|voorwaardelike formatering)[\\s\\S]{0,80}?(b7\\s*>\\s*b2|b2\\s*<\\s*b7|b8\\s*<\\s*0|b7\\s*<=\\s*b2|b2\\s*>=\\s*b7|b8\\s*>=\\s*0)"
+            ]
+          },
+          {
+            "id": "chart",
+            "description": "Suggests a pie, doughnut, bar or column chart.",
+            "match": "any",
+            "flags": "i",
+            "patterns": [
+              "\\b(pie|doughnut|donut|bar|column)[ -](chart|graph)\\b",
+              "(sirkel|taart|kolom|staaf)[ -]?(grafiek|diagram)",
+              "ishadi[^.\\n]{0,30}\\b(pie|doughnut|donut|bar|column)\\b"
+            ]
+          }
+        ],
+        "manualReview": [
+          "Does the warning show the right message for each outcome?",
+          "Does the chosen chart suit the data being shown?"
+        ],
+        "examples": {
+          "pass": "B7: =SUM(B3:B6)\nB8: =B2-B7\nWarning: =IF(B7>B2,\"Over budget\",\"Within budget\")\nI would use a column chart to compare the expenses.",
+          "incomplete": "B7: =SUM(B3:B6)\nB8: =B2-B7\nI would use a column chart to compare the expenses.",
+          "incorrect": "B7: =SUM(B2:B6)\nB8: =B7-B2\nMake it look nice with colours."
+        }
+      },
+      "translationStatus": {
+        "en": "needs-team-review",
+        "zu": "needs-fluent-review",
+        "af": "needs-fluent-review"
+      },
+      "text": {
+        "en": {
+          "title": "Plan a shop budget",
+          "body": "A shop's income (R20 000) is in B2. Expenses are in B3 to B6: rent R6 000, stock R7 000, electricity R1 500, transport R2 000. Write formulas for total expenses in B7 and money left in B8. Explain how to warn when expenses exceed income, and suggest one chart. Write at least 20 characters.",
+          "hint": "Think about SUM, subtraction and IF."
+        },
+        "zu": {
+          "title": "Hlela isabelomali sesitolo",
+          "body": "Imali engenayo yesitolo (R20 000) iku-B2. Izindleko ziku-B3 kuya ku-B6: irenti R6 000, isitoko R7 000, ugesi R1 500, ezokuthutha R2 000. Bhala ifomula yazo zonke izindleko ku-B7 neyemali esele ku-B8. Chaza ukuthi ungaxwayisa kanjani uma izindleko zidlula imali engenayo, bese uphakamisa ishadi elilodwa. Bhala okungenani izinhlamvu eziyi-20.",
+          "hint": "Cabanga nge-SUM, ukususa kanye ne-IF."
+        },
+        "af": {
+          "title": "Beplan ’n winkelbegroting",
+          "body": "’n Winkel se inkomste (R20 000) is in B2. Uitgawes is in B3 tot B6: huur R6 000, voorraad R7 000, elektrisiteit R1 500, vervoer R2 000. Skryf formules vir die totale uitgawes in B7 en die oorblywende geld in B8. Verduidelik hoe om te waarsku wanneer uitgawes die inkomste oorskry, en stel een grafiek voor. Skryf minstens 20 karakters.",
+          "hint": "Dink aan SUM, aftrekking en IF."
+        }
+      }
+    }
+  ],
+  "developer": [
+    {
+      "id": "d1",
+      "patterns": [
+        "^print\\s*\\(\\s*([\"'])hello\\1\\s*\\)$"
+      ],
+      "translationStatus": {
+        "en": "needs-team-review",
+        "zu": "needs-fluent-review",
+        "af": "needs-fluent-review"
+      },
+      "text": {
+        "en": {
+          "title": "Print a greeting",
+          "body": "Type the Python code that prints the word Hello. Use a capital H.",
+          "hint": "Use the print function with text inside quotation marks."
+        },
+        "zu": {
+          "title": "Phrinta isibingelelo",
+          "body": "Thayipha ikhodi ye-Python ephrinta igama elithi Hello. Sebenzisa usonhlamvukazi H.",
+          "hint": "Sebenzisa umsebenzi we-print nombhalo ophakathi kwezicaphuno."
+        },
+        "af": {
+          "title": "Vertoon ’n groet",
+          "body": "Tik die Python-kode wat die woord Hello vertoon. Gebruik ’n hoofletter H.",
+          "hint": "Gebruik die print-funksie met teks tussen aanhalingstekens."
+        }
+      }
+    },
+    {
+      "id": "d2",
+      "patterns": [
+        "^for\\s*[a-z_]\\w*\\s*in\\s*range\\(\\s*(0\\s*,\\s*)?5\\s*\\)\\s*:$"
+      ],
+      "translationStatus": {
+        "en": "needs-team-review",
+        "zu": "needs-fluent-review",
+        "af": "needs-fluent-review"
+      },
+      "text": {
+        "en": {
+          "title": "Repeat a reminder",
+          "body": "A script must send 5 reminders. Write the first line of a for loop that repeats 5 times, using the variable i and range.",
+          "hint": "Format: for i in range(...): Remember the colon at the end."
+        },
+        "zu": {
+          "title": "Phinda isikhumbuzo",
+          "body": "Isikripthi kumele sithumele izikhumbuzo ezi-5. Bhala umugqa wokuqala we-loop ye-for ephindaphinda izikhathi ezi-5, usebenzisa i-variable i kanye ne-range.",
+          "hint": "Isimo: for i in range(...): Ungakhohlwa ikholoni ekugcineni."
+        },
+        "af": {
+          "title": "Herhaal ’n herinnering",
+          "body": "’n Skrip moet 5 herinnerings stuur. Skryf die eerste reël van ’n for-lus wat 5 keer herhaal, met die veranderlike i en range.",
+          "hint": "Formaat: for i in range(...): Onthou die dubbelpunt aan die einde."
+        }
+      }
+    },
+    {
+      "id": "d3",
+      "minLength": 20,
+      "gradingCriteria": {
+        "version": 1,
+        "status": "draft-not-yet-implemented",
+        "answerFormat": "python-code",
+        "passRule": "every-check-and-minLength",
+        "preserveWhitespace": true,
+        "caseSensitive": true,
+        "stripCommentsFirst": true,
+        "expectedOutput": "2",
+        "checks": [
+          {
+            "id": "loop",
+            "description": "Uses a for loop over marks, or a while loop.",
+            "match": "any",
+            "flags": "m",
+            "patterns": [
+              "^[ \\t]*for\\s+\\w+\\s+in\\s+[^\\n]*\\bmarks\\b[^\\n]*:",
+              "^[ \\t]*while\\s+[^\\n]+:"
+            ]
+          },
+          {
+            "id": "condition",
+            "description": "An if statement tests for 50 or higher.",
+            "match": "any",
+            "flags": "m",
+            "patterns": [
+              "^[ \\t]+if\\b[^\\n]*(>=\\s*50\\b|>\\s*49\\b|\\b50\\s*<=|\\b49\\s*<)[^\\n]*:"
+            ]
+          },
+          {
+            "id": "count-and-print",
+            "description": "One counter starts at 0, increases by 1 inside the code, and is printed after the loop (unindented).",
+            "match": "any",
+            "flags": "m",
+            "patterns": [
+              "^([A-Za-z_]\\w*)\\s*=\\s*0\\b[\\s\\S]*^[ \\t]+\\1\\s*(\\+=\\s*1|=\\s*\\1\\s*\\+\\s*1)\\b[\\s\\S]*^print\\s*\\([^\\n]*\\b\\1\\b"
+            ]
+          },
+          {
+            "id": "no-hardcoded-answer",
+            "description": "Does not simply print 2.",
+            "match": "none",
+            "flags": "m",
+            "patterns": [
+              "print\\s*\\(\\s*[\\\"']?2[\\\"']?\\s*\\)"
+            ]
+          }
+        ],
+        "manualReview": [
+          "Is the code valid Python with sensible indentation?",
+          "Does it really print 2 once?"
+        ],
+        "examples": {
+          "pass": "marks = [72, 45, 88, 39]\ncount = 0\nfor mark in marks:\n    if mark >= 50:\n        count += 1\nprint(count)",
+          "incomplete": "marks = [72, 45, 88, 39]\nfor mark in marks:\n    if mark >= 50:\n        print(mark)",
+          "incorrect": "print(2)"
+        }
+      },
+      "translationStatus": {
+        "en": "needs-team-review",
+        "zu": "needs-fluent-review",
+        "af": "needs-fluent-review"
+      },
+      "text": {
+        "en": {
+          "title": "Count who passed",
+          "body": "A training centre has these marks: marks = [72, 45, 88, 39]. Write Python code that counts how many marks are 50 or higher, then prints the count. Use a loop and an if statement. Write at least 20 characters.",
+          "hint": "Start a counter at 0 and add 1 for each pass."
+        },
+        "zu": {
+          "title": "Bala abaphumelele",
+          "body": "Isikhungo sokuqeqesha sinala mamaki: marks = [72, 45, 88, 39]. Bhala ikhodi ye-Python ebala ukuthi mangaki amamaki angu-50 noma ngaphezulu, bese iphrinta lelo nani. Sebenzisa i-loop nesitatimende se-if. Bhala okungenani izinhlamvu eziyi-20.",
+          "hint": "Qala isibali ku-0, bese ungeza u-1 kulowo nalowo ophumelele."
+        },
+        "af": {
+          "title": "Tel wie geslaag het",
+          "body": "’n Opleidingsentrum het hierdie punte: marks = [72, 45, 88, 39]. Skryf Python-kode wat tel hoeveel punte 50 of hoër is en dan die getal vertoon. Gebruik ’n lus en ’n if-stelling. Skryf minstens 20 karakters.",
+          "hint": "Begin ’n teller by 0 en tel 1 by vir elke slaagpunt."
+        }
+      }
+    }
+  ]
+}
