@@ -1,0 +1,25 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment: { POSTGRES_USER: skills, POSTGRES_PASSWORD: skills, POSTGRES_DB: skills }
+    ports: ["5432:5432"]
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+  api:
+    build: .
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://skills:skills@postgres:5432/skills
+      REDIS_URL: redis://redis:6379
+    depends_on: [postgres, redis]
+    ports: ["3000:3000"]
+    read_only: true
+    tmpfs: ["/tmp"]
+    mem_limit: 1g
+    pids_limit: 256
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+volumes:
+  pgdata: {}

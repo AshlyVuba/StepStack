@@ -1,0 +1,8 @@
+{
+  "id": "vlookup-price", "title": "Find the price of the product named in D1 using the table A1:B4 (exact match)",
+  "answerCells": ["E1"], "allowedFunctions": ["VLOOKUP"], "requiredFunctions": ["VLOOKUP"],
+  "cases": [
+    { "cells": { "A1": "Bread", "B1": 15, "A2": "Milk", "B2": 22, "A3": "Eggs", "B3": 40, "A4": "Rice", "B4": 55, "D1": "Eggs" }, "expected": { "E1": 40 } },
+    { "cells": { "A1": "Bread", "B1": 17, "A2": "Milk", "B2": 24, "A3": "Eggs", "B3": 41, "A4": "Rice", "B4": 59, "D1": "Rice" }, "expected": { "E1": 59 } }
+  ]
+}

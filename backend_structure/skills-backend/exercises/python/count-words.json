@@ -1,0 +1,9 @@
+{
+  "id": "count-words", "title": "Write count_words(text) that returns how many words are in a sentence",
+  "functionName": "count_words",
+  "tests": [
+    { "args": ["hello world"], "expected": 2 },
+    { "args": [""], "expected": 0 },
+    { "args": ["  many   spaces here "], "expected": 3, "hidden": true }
+  ]
+}
