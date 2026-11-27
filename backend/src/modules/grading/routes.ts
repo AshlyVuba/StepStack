@@ -16,7 +16,7 @@ const excelBody = z.object({
 });
 const pythonBody = z.object({ exerciseId: z.string().max(100), code: z.string().min(1).max(10_000) });
 
-export function gradingRoutes(app: FastifyInstance, store: ExerciseStore, pool: SandboxPool, pythonRatePerMin: number) {
+export function gradingRoutes(app: FastifyInstance, store: ExerciseStore, pool: SandboxPool, pythonRatePerMin: number, pythonEnabled = true) {
   app.post("/v1/grade/typing", { bodyLimit: 16 * 1024 }, async (req, reply) => {
     const b = typingBody.safeParse(req.body);
     if (!b.success) return reply.code(400).send({ error: "invalid_request" });
@@ -34,6 +34,8 @@ export function gradingRoutes(app: FastifyInstance, store: ExerciseStore, pool: 
   });
 
   app.post("/v1/grade/python", { bodyLimit: 32 * 1024, config: { rateLimit: { max: pythonRatePerMin, timeWindow: "1 minute" } } }, async (req, reply) => {
+    // Kill switch (incident response): stops all code execution without a redeploy of the sandbox.
+    if (!pythonEnabled) return reply.code(503).send({ error: "python_grading_disabled" });
     const b = pythonBody.safeParse(req.body);
     if (!b.success) return reply.code(400).send({ error: "invalid_request" });
     const ex = store.python.get(b.data.exerciseId);

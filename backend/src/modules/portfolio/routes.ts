@@ -10,6 +10,10 @@ export interface PortfolioDeps {
   previousKey?: string;
   internalKey: string;
   publicBaseUrl: string;
+  /** days a public link stays valid after issue (default 365) */
+  ttlDays?: number;
+  /** clock, injectable for tests */
+  now?: () => Date;
 }
 
 const completeBody = z.object({
@@ -17,6 +21,9 @@ const completeBody = z.object({
   capstoneId: z.string().min(1).max(100),
   // Optional public alias chosen by the learner. NOT their legal name / email.
   displayName: z.string().trim().min(1).max(60).optional(),
+  // The alias is only published when the caller (LMS) confirms the learner, or a parent/guardian
+  // for under-18s, agreed to a public alias. Without it the page shows "Verified learner".
+  aliasConsent: z.boolean().default(false),
   skills: z.array(z.object({
     skill: z.string().min(1).max(100),
     level: z.enum(["foundation", "intermediate", "advanced"]),
@@ -36,7 +43,7 @@ export function portfolioRoutes(app: FastifyInstance, deps: PortfolioDeps) {
       id: newPortfolioId(),
       learnerId: body.data.learnerId,
       capstoneId: body.data.capstoneId,
-      displayName: body.data.displayName ?? null,
+      displayName: body.data.aliasConsent ? body.data.displayName ?? null : null,
       skills: body.data.skills,
     });
     // Always re-derive the token from the stored row so repeats return the same link.
@@ -64,12 +71,15 @@ export function portfolioRoutes(app: FastifyInstance, deps: PortfolioDeps) {
     const row = await deps.repo.findById(v.payload.pid);
     if (!row) return invalid();
     if (row.revokedAt) return reply.code(410).send({ verified: false, reason: "revoked" });
+    const ageMs = (deps.now?.() ?? new Date()).getTime() - row.issuedAt.getTime();
+    if (ageMs > (deps.ttlDays ?? 365) * 24 * 60 * 60 * 1000) return reply.code(410).send({ verified: false, reason: "expired" });
     return {
       verified: true,
       displayName: row.displayName ?? "Verified learner",
       capstoneId: row.capstoneId,
       issuedAt: row.issuedAt.toISOString(),
-      skills: row.skills,
+      // Free-text evidence is stored for the issuer but never published.
+      skills: row.skills.map(({ skill, level }) => ({ skill, level })),
     };
   });
 }

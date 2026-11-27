@@ -4,8 +4,8 @@ One Fastify/TypeScript service, three modules. Node >= 22.
 
 | Module | Endpoints |
 |---|---|
-| Portfolio | `POST /v1/capstones/complete` (internal key), `GET /v1/verify/:token` (public), `POST /v1/portfolios/:id/revoke` (internal key) |
-| Translation | `POST /v1/translate` `{text, targetLang: zu\|xh\|st\|tn\|af, kind: lesson\|learner}` |
+| Portfolio | `POST /v1/capstones/complete` (internal key; body may include `aliasConsent: true` to publish `displayName`), `GET /v1/verify/:token` (public), `POST /v1/portfolios/:id/revoke` (internal key) |
+| Translation | `POST /v1/translate` `{text, targetLang: zu\|xh\|st\|tn\|af, kind: lesson\|learner}`. `lesson` (cached 30 days) needs the `x-internal-key` header; anonymous callers use `learner` (never cached). 30 requests/min/IP |
 | Grading | `POST /v1/grade/typing`, `/v1/grade/excel`, `/v1/grade/python` |
 
 ## Run
@@ -15,6 +15,13 @@ docker compose up -d postgres redis
 npm install && npm run migrate && npm run dev
 npm test                    # 31 tests, ~1 min (boots real Pyodide sandboxes)
 ```
+
+### Deployment security settings
+- `POSTGRES_PASSWORD` and `REDIS_PASSWORD` are required by `docker-compose.yml`; both data stores listen on `127.0.0.1` only.
+- `TRUST_PROXY_HOPS` (default `0`): set to the number of reverse proxies in front of the API, otherwise `X-Forwarded-For` is ignored.
+- `PORTFOLIO_TTL_DAYS` (default `365`): public links stop verifying after this long (`410 expired`).
+- `GRADING_PYTHON_ENABLED=false`: kill switch for the Python grader (`503`).
+- Still open: the grader process shares the API container's network. Run it as a separate service with no network before production.
 
 ## Layout
 ```

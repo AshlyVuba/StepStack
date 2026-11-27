@@ -8,11 +8,14 @@ function safeEqual(a: string, b: string): boolean {
   return timingSafeEqual(ha, hb);
 }
 
+export function hasInternalKey(provided: unknown, expectedKey: string): boolean {
+  return typeof provided === "string" && safeEqual(provided, expectedKey);
+}
+
 /** Guard for service-to-service endpoints (called by the LMS, not by browsers). */
 export function internalAuth(expectedKey: string) {
   return async (req: FastifyRequest, reply: FastifyReply) => {
-    const provided = req.headers["x-internal-key"];
-    if (typeof provided !== "string" || !safeEqual(provided, expectedKey)) {
+    if (!hasInternalKey(req.headers["x-internal-key"], expectedKey)) {
       return reply.code(401).send({ error: "unauthorized" });
     }
   };

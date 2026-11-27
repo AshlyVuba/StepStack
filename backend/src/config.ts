@@ -15,6 +15,12 @@ const schema = z.object({
   TRANSLATION_MODEL: z.string().default("claude-sonnet-5-5"),
   PORT: z.coerce.number().default(3000),
   GRADER_TIMEOUT_MS: z.coerce.number().int().min(200).max(1900).default(1500),
+  /** number of reverse proxies in front of the API (0 = none: never trust X-Forwarded-For) */
+  TRUST_PROXY_HOPS: z.coerce.number().int().min(0).max(5).default(0),
+  /** public portfolio links stop verifying this many days after they were issued */
+  PORTFOLIO_TTL_DAYS: z.coerce.number().int().min(1).max(3650).default(365),
+  /** kill switch for the Python grader: set to "false" to return 503 without touching the sandbox */
+  GRADING_PYTHON_ENABLED: z.enum(["true", "false"]).default("true").transform((v) => v === "true"),
   GRADER_POOL_SIZE: z.coerce.number().int().min(1).max(8).default(2),
 });
 

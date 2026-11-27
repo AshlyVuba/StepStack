@@ -1,4 +1,4 @@
-import { spawn, type ChildProcess } from "node:child_process";
+import { spawn, type ChildProcess, type SpawnOptions } from "node:child_process";
 import { resolve } from "node:path";
 
 export interface SandboxRequest { code: string; fn: string; tests: { args: unknown[]; expected: unknown; hidden?: boolean }[] }
@@ -11,6 +11,14 @@ interface Worker { proc: ChildProcess; buf: string; ready: boolean; onLine?: (l:
 
 const MAX_OUTPUT = 256 * 1024;
 const MAX_QUEUE = 20;
+
+/**
+ * How every grader process is started. Kept in one function so a test can prove that the
+ * parent's secrets (API keys, DB URLs) are never inherited, even if user code escaped.
+ */
+export function sandboxSpawnOptions(): SpawnOptions {
+  return { stdio: ["pipe", "pipe", "ignore"], env: {} };
+}
 
 /**
  * Pool of warm, SINGLE-USE Pyodide processes.
@@ -47,10 +55,7 @@ export class SandboxPool {
   private spawnWorker() {
     if (this.closed || this.ready.length + this.starting >= this.size) return;
     this.starting++;
-    const proc = spawn(process.execPath, ["--max-old-space-size=256", this.runner], {
-      stdio: ["pipe", "pipe", "ignore"],
-      env: {}, // NO inherited secrets
-    });
+    const proc = spawn(process.execPath, ["--max-old-space-size=256", this.runner], sandboxSpawnOptions());
     const w: Worker = { proc, buf: "", ready: false, dead: false };
     let counted = true;
     const uncount = () => { if (counted) { counted = false; this.starting--; } };

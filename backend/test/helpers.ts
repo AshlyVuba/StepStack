@@ -17,10 +17,14 @@ export class FakeLlm implements Llm {
   async complete(system: string, user: string) { this.calls++; this.lastUser = user; return this.impl(system, user); }
 }
 
-export async function makeApp(opts: { llm?: Llm; pool?: SandboxPool } = {}) {
-  const config = loadConfig({ ...TEST_ENV } as NodeJS.ProcessEnv);
+export async function makeApp(opts: {
+  llm?: Llm; pool?: SandboxPool; globalRatePerMin?: number; translateRatePerMin?: number; env?: Record<string, string>;
+} = {}) {
+  const config = loadConfig({ ...TEST_ENV, ...(opts.env ?? {}) } as NodeJS.ProcessEnv);
   const llm = opts.llm ?? new FakeLlm();
   const pool = opts.pool ?? ({ run: async () => ({ status: "error", message: "n/a" }), close() {} } as unknown as SandboxPool);
-  const app = await buildApp({ config, repo: new MemoryPortfolioRepo(), cache: new MemoryCache(), llm, pool, pythonRatePerMin: 10_000 });
-  return { app, config, llm };
+  const repo = new MemoryPortfolioRepo();
+  const app = await buildApp({ config, repo, cache: new MemoryCache(), llm, pool, pythonRatePerMin: 10_000,
+    globalRatePerMin: opts.globalRatePerMin ?? 10_000, translateRatePerMin: opts.translateRatePerMin ?? 10_000 });
+  return { app, config, llm, repo };
 }

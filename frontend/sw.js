@@ -29,6 +29,10 @@ const SHELL = [
   './src/js/workspace.js'
 ];
 
+// Only these URLs are ever cached. Anything else (for example API responses once the app talks to a
+// backend on the same origin) is left to the network and is never stored.
+const SHELL_PATHS = new Set(SHELL.map((p) => new URL(p, self.location).pathname));
+
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL)));
 });
@@ -45,9 +49,23 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   const req = event.request;
-  if (req.method !== 'GET' || new URL(req.url).origin !== self.location.origin) return;
-  event.respondWith(respond(event, req));
+  const url = new URL(req.url);
+  if (req.method !== 'GET' || url.origin !== self.location.origin) return;
+  if (SHELL_PATHS.has(url.pathname)) { event.respondWith(respond(event, req)); return; }
+  if (req.mode === 'navigate') { event.respondWith(navigateOrShell(req)); return; }
+  // not part of the app shell: do not intercept, do not cache
 });
+
+// Page navigations to unknown URLs: network first, never cached; fall back to the app shell when offline.
+async function navigateOrShell(req) {
+  try {
+    return await fetch(req);
+  } catch (err) {
+    const shell = await (await caches.open(CACHE)).match('./index.html');
+    if (shell) return shell;
+    throw err;
+  }
+}
 
 async function respond(event, req) {
   const cache = await caches.open(CACHE);

@@ -1,0 +1,13 @@
+# Security headers for static hosts that read a _headers file (Netlify, Cloudflare Pages).
+# On GitHub Pages (no custom headers) the <meta> Content-Security-Policy in index.html still applies;
+# frame-ancestors, HSTS and the others below need a host that can set HTTP headers.
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+  Cross-Origin-Opener-Policy: same-origin
+
+/sw.js
+  Cache-Control: no-cache

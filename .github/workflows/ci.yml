@@ -30,6 +30,8 @@ jobs:
         run: npm test
       - name: Bundle size budget
         run: npm run check:size
+      - name: Dependency audit (high and critical, production dependencies)
+        run: npm audit --omit=dev --audit-level=high
 
   backend:
     runs-on: ubuntu-latest
@@ -49,3 +51,16 @@ jobs:
         run: npm run typecheck
       - name: Tests (boots real Pyodide sandboxes, about 2 minutes)
         run: npm test
+      - name: Dependency audit (high and critical, production dependencies)
+        run: npm audit --omit=dev --audit-level=high
+
+  secrets:
+    name: Secret scan (full Git history)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0          # scan every commit, not just the latest
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
