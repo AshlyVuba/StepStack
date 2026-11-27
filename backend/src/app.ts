@@ -24,7 +24,11 @@ export interface Deps {
 
 /** Dependency-injected so tests can swap in memory repos, a fake LLM, etc. */
 export async function buildApp(d: Deps) {
-  const app = Fastify({ logger: process.env.NODE_ENV !== "test", bodyLimit: 64 * 1024, trustProxy: d.config.TRUST_PROXY_HOPS > 0 ? d.config.TRUST_PROXY_HOPS : false, routerOptions: { maxParamLength: 512 } });
+  // "Trust the first N proxy hops" written as a function: current Fastify typings reject a bare number,
+  // and the function form behaves identically. 0 hops = never trust X-Forwarded-For.
+  const hops = d.config.TRUST_PROXY_HOPS;
+  const trustProxy = hops > 0 ? (_address: string, hop: number) => hop < hops : false;
+  const app = Fastify({ logger: process.env.NODE_ENV !== "test", bodyLimit: 64 * 1024, trustProxy, routerOptions: { maxParamLength: 512 } });
   await app.register(helmet);
   await app.register(rateLimit, { max: d.globalRatePerMin ?? 120, timeWindow: "1 minute" });
 
