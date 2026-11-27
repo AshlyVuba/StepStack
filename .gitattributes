@@ -1,0 +1,3 @@
+prototype/*.html text eol=lf
+prototype/*.css text eol=lf
+prototype/*.js text eol=lf
