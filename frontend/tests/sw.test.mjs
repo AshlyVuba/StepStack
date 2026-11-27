@@ -87,11 +87,17 @@ test('OFFLINE: unknown page navigation falls back to the app shell', async () =>
   assert.match(await res.text(), /shell/);
 });
 
-test('uncached non-navigation request fails offline instead of lying', async () => {
+test('uncached non-navigation request is left to the network: never intercepted, never cached', async () => {
   const env = makeEnv();
   await env.run('install');
+  const cachedBefore = env.stores.get('stepstack-shell-v1').size;
   env.setOnline(false);
-  await assert.rejects(async () => await env.request('./unknown.json'));
+  // The service worker does not call respondWith(), so the browser's own fetch runs and fails offline.
+  assert.equal(await env.request('./unknown.json'), undefined);
+  env.setOnline(true);
+  env.files.set(abs('./unknown.json'), '{"secret":"api response"}');
+  assert.equal(await env.request('./unknown.json'), undefined);
+  assert.equal(env.stores.get('stepstack-shell-v1').size, cachedBefore); // nothing outside the shell is stored
 });
 
 test('cache is refreshed in the background when online (updates arrive)', async () => {
