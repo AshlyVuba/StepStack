@@ -3,12 +3,19 @@ import assert from 'node:assert/strict';
 import {
   gradeExercise, translateText, verifyPortfolio, frontendToBackendExercise
 } from '../src/js/grading.js';
+import { TYPING_STAGES } from '../src/js/typing-game.js';
 
 test('frontend exercise IDs map only to matching server-side graders', () => {
-  assert.equal(frontendToBackendExercise('typing', 'typing-warmup').exerciseId, 'typing-intro-1');
   assert.equal(frontendToBackendExercise('excel', 'w1').exerciseId, 'sum-basic');
   assert.equal(frontendToBackendExercise('python', 'd1').exerciseId, 'sum-even');
   assert.equal(frontendToBackendExercise('excel', 'w2'), undefined);
+  assert.equal(TYPING_STAGES.length, 10);
+  TYPING_STAGES.forEach((stage, index) => {
+    assert.equal(
+      frontendToBackendExercise('typing', stage.id).exerciseId,
+      `typing-foundation-${String(index + 1).padStart(2, '0')}`
+    );
+  });
 });
 
 test('grading and translation use public endpoints without internal credentials', async () => {

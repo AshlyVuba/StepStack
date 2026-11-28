@@ -10,14 +10,13 @@ const apiUrl = new URL(configuredApi || defaultApi, globalThis.location?.href ||
 if (!['http:', 'https:'].includes(apiUrl.protocol) || apiUrl.username || apiUrl.password)
   throw new Error('API base URL must use HTTP or HTTPS without credentials');
 export const API_BASE = apiUrl.href.replace(/\/$/, '');
-export const translateEndpoint = `${API_BASE}/v1/translate`;
 export const verifyEndpoint = (token) => `${API_BASE}/v1/verify/${encodeURIComponent(token)}`;
 
 export const PATHWAYS = {
   foundational: {
     title: 'Typing & Computer Basics', emoji: '⌨️',
     description: 'Build confidence through typing, mouse skills and essential computer tasks.',
-    lessons: ['Typing foundations', 'Mouse and pointer control', 'Keyboard shortcuts', 'Computer basics', 'Files and folders', 'Internet and browser navigation', 'Digital safety']
+    lessons: ['Typing Foundation', 'Mouse and pointer control', 'Keyboard shortcuts', 'Computer basics', 'Files and folders', 'Internet and browser navigation', 'Digital safety']
   },
   workplace: {
     title: 'Workplace Ready', emoji: '💼',
@@ -43,12 +42,7 @@ export const PATHWAYS = {
 
 // Only these exercises have matching server-side grader definitions.
 export const EXERCISE_MAP = {
-  typing: {
-    'typing-warmup': {
-      exerciseId: 'typing-intro-1',
-      target: 'The quick brown fox jumps over the lazy dog near the river.'
-    }
-  },
+  typing: {},
   excel: { w1: { exerciseId: 'sum-basic', answerCell: 'B6' } },
   python: {
     d1: { exerciseId: 'sum-even' },

@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { makeApp } from "./helpers.js";
 import { SandboxPool } from "../src/modules/grading/sandbox/pool.js";
+import { ExerciseStore } from "../src/modules/grading/exercises.js";
 
 let app: any; let pool: SandboxPool;
 beforeAll(async () => {
@@ -14,6 +15,21 @@ afterAll(() => pool.close());
 const grade = (kind: string, payload: any) => app.inject({ method: "POST", url: `/v1/grade/${kind}`, payload });
 
 describe("typing", () => {
+  it("grades all ten typing foundation stages against their configured accuracy and speed targets", async () => {
+    const exercises = new ExerciseStore().typing;
+    for (let stage = 1; stage <= 10; stage++) {
+      const exercise = exercises.get(`typing-foundation-${String(stage).padStart(2, "0")}`);
+      expect(exercise).toBeDefined();
+      const durationMs = Math.max(1000, Math.floor((exercise!.text.length / 5) * 60000 / (exercise!.minWpm * 1.1)));
+      const result = (await grade("typing", {
+        exerciseId: exercise!.id, typed: exercise!.text, durationMs,
+      })).json();
+      expect(result.passed, `stage ${stage}`).toBe(true);
+      expect(result.accuracy).toBe(100);
+      expect(result.wpm).toBeGreaterThanOrEqual(exercise!.minWpm);
+    }
+  });
+
   const text = "The quick brown fox jumps over the lazy dog near the river.";
   it("passes accurate, fast typing", async () => {
     const r = (await grade("typing", { exerciseId: "typing-intro-1", typed: text, durationMs: 20000 })).json();

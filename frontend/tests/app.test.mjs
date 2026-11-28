@@ -114,6 +114,8 @@ test('shared-device profiles require a passcode and clear sensitive UI after idl
   env.$('unlockForm').dispatchEvent(new env.window.Event('submit', { bubbles: true, cancelable: true }));
   await until(() => env.$('dashboardScreen').classList.contains('active'), 'unlock dashboard');
   assert.match(env.$('greeting').textContent, /Thandi/);
+  env.$('logout').click();
+  await until(() => env.$('unlockScreen').classList.contains('active'), 'manual logout cleanup');
 });
 
 test('completed offline grading requests are encrypted and retried through the API queue', async () => {
@@ -138,6 +140,65 @@ test('completed offline grading requests are encrypted and retried through the A
     assert.deepEqual(sent[0], { exerciseId: 'sum-basic', formulas: { B6: '=SUM(B1:B5)' } });
   } finally {
     if (oldNavigator) Object.defineProperty(globalThis, 'navigator', oldNavigator);
+    else delete globalThis.navigator;
+  }
+});
+
+test('Typing Foundation is a 10-stage offline game that gates the next track lesson and resumes saved progress', async () => {
+  const env = await boot();
+  await createProfile(env);
+  const navigatorDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'navigator');
+  const originalNow = Date.now;
+  let timeOffset = 0;
+  Object.defineProperty(globalThis, 'navigator', { configurable: true, value: { onLine: false } });
+  Date.now = () => originalNow() + timeOffset;
+  try {
+    env.window.document.querySelector('.pathway-card[data-path="foundational"]').click();
+    await until(() => env.$('pathwayScreen').classList.contains('active'), 'typing track');
+    let lessonButtons = env.window.document.querySelectorAll('#pathLessonList .lesson-play');
+    assert.equal(lessonButtons[1].disabled, true);
+    lessonButtons[0].click();
+    await until(() => env.$('workspaceScreen').classList.contains('active'), 'typing game');
+    assert.equal(env.window.document.querySelectorAll('#typingStageSelect option').length, 10);
+    assert.equal([...env.window.document.querySelectorAll('#typingStageSelect option')].filter((option) => option.disabled).length, 9);
+
+    const typeCurrentTarget = async (pass) => {
+      const target = env.$('practicePrompt').textContent;
+      env.$('practiceAnswer').value = pass ? target : 'incorrect';
+      timeOffset += 10000;
+      env.$('gradePractice').click();
+      await until(
+        () => /(Stage [0-9]+ passed|Not yet)/.test(env.$('practiceFeedback').textContent) ||
+          /could not be checked/.test(env.$('practiceFeedback').textContent),
+        `typing result: ${env.$('practiceFeedback').textContent}`
+      );
+      return env.$('practiceFeedback').textContent;
+    };
+
+    assert.match(await typeCurrentTarget(false), /Not yet/);
+    assert.equal(env.window.document.querySelector('#typingStageSelect option[value="2"]').disabled, true);
+    assert.match(await typeCurrentTarget(true), /Stage 1 passed/);
+    for (let stage = 2; stage <= 10; stage++) {
+      assert.equal(env.window.document.querySelector(`#typingStageSelect option[value="${stage}"]`).disabled, false);
+      assert.match(await typeCurrentTarget(true), new RegExp(`Stage ${stage} passed`));
+    }
+
+    const pending = await env.app.queue.pending();
+    assert.equal(pending.length, 11);
+    assert.ok(pending.every((item) => item.payload.path === '/v1/grade/typing'));
+    env.$('backToPathway').click();
+    await until(() => env.$('pathwayScreen').classList.contains('active'), 'completed typing track');
+    await until(() => !env.window.document.querySelectorAll('#pathLessonList .lesson-play')[1].disabled, 'next lesson unlock');
+    assert.equal(env.$('pathProgressValue').textContent, '10/10');
+
+    lessonButtons = env.window.document.querySelectorAll('#pathLessonList .lesson-play');
+    lessonButtons[0].click();
+    await until(() => env.$('practiceTitle').textContent.includes('Stage 10:'), 'resume at final unlocked stage');
+    assert.equal(env.window.document.querySelectorAll('#typingStageSelect option:not(:disabled)').length, 10);
+    assert.match(env.$('practiceHint').textContent, /attempts? · Best/);
+  } finally {
+    Date.now = originalNow;
+    if (navigatorDescriptor) Object.defineProperty(globalThis, 'navigator', navigatorDescriptor);
     else delete globalThis.navigator;
   }
 });

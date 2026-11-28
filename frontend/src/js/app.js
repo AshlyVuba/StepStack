@@ -1,9 +1,8 @@
 import { get as getDeviceMeta } from './idb.js';
 import { initPwa } from './pwa.js';
-import { API_BASE } from './config.js';
 
 const $ = (id) => document.getElementById(id);
-const SCREENS = ['welcomeScreen', 'profileScreen', 'dashboardScreen', 'courseScreen', 'pathwayScreen', 'workspaceScreen', 'unlockScreen'];
+const SCREENS = ['welcomeScreen', 'profileScreen', 'dashboardScreen', 'pathwayScreen', 'workspaceScreen', 'unlockScreen'];
 const DEFAULT_IDLE = { idleMs: 5 * 60 * 1000, warnMs: 30 * 1000, tickMs: 1000 };
 
 let options = DEFAULT_IDLE;
@@ -57,6 +56,7 @@ function setPersistenceNotice(persistent) {
 
 async function configureQueue() {
   const queue = await import('./queue.js');
+  const { API_BASE } = await import('./config.js');
   const pending = await queue.pending();
   const legacy = pending.filter((item) => item.type === 'stage-complete');
   for (const item of legacy) await queue.remove(item.id);
@@ -127,6 +127,7 @@ async function submitProfile(profile, passcode) {
     await showDashboard(profile);
     showToast(`Your learning journey is ready, ${profile.firstName}.`);
   } catch (error) {
+    console.error('Secure profile storage failed:', error);
     showToast('Secure profile storage could not be saved. Your information has not been submitted.');
   }
 }

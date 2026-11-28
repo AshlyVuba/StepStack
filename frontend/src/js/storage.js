@@ -4,14 +4,5 @@ import * as vault from './vault.js';
 
 export const loadProfile = () => vault.load('profile');
 export const saveProfile = (profile) => vault.save('profile', profile);
-export const clearProfile = () => vault.remove('profile');
 export const loadProgress = () => vault.load('progress');
 export const saveProgress = (progress) => vault.save('progress', progress);
-
-// Earlier prototypes kept plaintext data in localStorage. Delete it on startup.
-export function removeLegacyData() {
-  try {
-    localStorage.removeItem('stepstack:profile:v1');
-    localStorage.removeItem('stepstack:progress:v1');
-  } catch (e) { /* storage unavailable: nothing to remove */ }
-}

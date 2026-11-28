@@ -9,7 +9,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon-192.png">
   <link rel="stylesheet" href="src/css/app.css">
-  <script type="module" src="src/js/main.js"></script>
+  <script type="module" src="dist/js/main.js"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -242,21 +242,7 @@
         <nav class="bottom-nav"><button class="nav-btn active" data-nav="home">⌂ Home</button><button class="nav-btn" data-nav="learn">▦ Learn</button><button class="nav-btn" data-nav="progress">♧ Progress</button><button class="nav-btn" data-nav="profile">☺ Profile</button></nav>
       </section>
 
-      <!-- SCREEN 4: Course detail -->
-      <section id="courseScreen" class="screen">
-        <button class="btn btn-dark back-button" id="backToDashboard" type="button">← Back to learning</button>
-        <div class="detail-hero">
-          <p class="eyebrow detail-eyebrow">YOUR LEARNING PATH</p>
-          <div class="detail-emoji" id="courseEmoji">👩🏾‍💻</div>
-          <h2 id="courseTitle">Code your first website</h2>
-          <p id="courseDescription">Start from the basics and create your first little website.</p>
-          <button class="btn btn-dark" id="startLesson" type="button">Start learning ▶</button>
-        </div>
-        <div class="section-heading"><h3>Course preview</h3><span class="muted">Lessons</span></div>
-        <div class="lesson-list" id="lessonList"></div>
-      </section>
-
-      <!-- SCREEN 4: Pathway detail -->
+      <!-- Pathway detail -->
       <section id="pathwayScreen" class="screen">
         <button class="btn btn-dark back-button" id="backFromPathway" type="button">← Back to dashboard</button>
         <div class="detail-hero pathway-detail">

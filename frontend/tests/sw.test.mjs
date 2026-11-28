@@ -57,14 +57,17 @@ test('install pre-caches the whole app shell', async () => {
   await env.run('install');
   const cached = [...env.stores.get('stepstack-shell-v2').keys()];
   assert.equal(cached.length, env.shell.length);
-  assert.ok(cached.includes(abs('./src/js/workspace.js')));
+  assert.ok(cached.includes(abs('./dist/js/main.js')));
+  assert.ok(env.shell.some((url) => url.includes('/dist/js/chunks/workspace-')));
 });
 
-test('OFFLINE: page, scripts and lazy exercise module all load from cache', async () => {
+test('OFFLINE: page, entry and lazy workspace chunk all load from cache', async () => {
   const env = makeEnv();
   await env.run('install');
   env.setOnline(false);
-  for (const u of ['./', './index.html', './src/js/main.js', './src/js/workspace.js', './src/css/app.css', './manifest.webmanifest']) {
+  const workspaceChunk = env.shell.find((url) => url.includes('/dist/js/chunks/workspace-'));
+  assert.ok(workspaceChunk);
+  for (const u of ['./', './index.html', './dist/js/main.js', workspaceChunk, './src/css/app.css', './manifest.webmanifest']) {
     const res = await env.request(u);
     assert.ok(res, u);
     assert.equal((await res).status, 200, u);
@@ -103,11 +106,11 @@ test('uncached non-navigation request is left to the network: never intercepted,
 test('cache is refreshed in the background when online (updates arrive)', async () => {
   const env = makeEnv();
   await env.run('install');
-  env.files.set(abs('./src/js/main.js'), 'NEW VERSION');
-  const first = await (await env.request('./src/js/main.js')).text();
+  env.files.set(abs('./dist/js/main.js'), 'NEW VERSION');
+  const first = await (await env.request('./dist/js/main.js')).text();
   assert.match(first, /content of/);             // served instantly from cache
   await new Promise((r) => setTimeout(r, 20));    // background refresh completes
-  const second = await (await env.request('./src/js/main.js')).text();
+  const second = await (await env.request('./dist/js/main.js')).text();
   assert.equal(second, 'NEW VERSION');
 });
 

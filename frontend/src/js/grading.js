@@ -15,7 +15,8 @@ export function grade(exercise, value) {
 }
 
 export const frontendToBackendExercise = (kind, frontendId) =>
-  EXERCISE_MAP[kind]?.[frontendId];
+  EXERCISE_MAP[kind]?.[frontendId] ||
+  (kind === 'typing' && /^typing-foundation-\d{2}$/.test(frontendId) ? { exerciseId: frontendId } : undefined);
 
 class RetryableRequestError extends Error {}
 
@@ -50,12 +51,38 @@ const requestFor = (kind, mapping, answer, durationMs) => {
   return { path: '/v1/grade/python', body: { exerciseId: mapping.exerciseId, code: answer } };
 };
 
+export function scoreTyping(target, typed, durationMs, minWpm, minAccuracy) {
+  const expected = target || '';
+  const actual = String(typed);
+  const previous = Array.from({ length: actual.length + 1 }, (_, index) => index);
+  for (let i = 1; i <= expected.length; i++) {
+    let diagonal = previous[0];
+    previous[0] = i;
+    for (let j = 1; j <= actual.length; j++) {
+      const old = previous[j];
+      previous[j] = Math.min(previous[j] + 1, previous[j - 1] + 1, diagonal + (expected[i - 1] === actual[j - 1] ? 0 : 1));
+      diagonal = old;
+    }
+  }
+  const distance = previous[actual.length];
+  const accuracy = Math.max(0, Math.round((1 - distance / Math.max(expected.length, actual.length)) * 1000) / 10);
+  const wpm = Math.round((Math.max(0, expected.length - distance) / 5 / (durationMs / 60000)) * 10) / 10;
+  return {
+    passed: accuracy >= minAccuracy && wpm >= minWpm && wpm <= 250,
+    accuracy,
+    wpm,
+    feedback: `Pass targets: ${minWpm} WPM and ${minAccuracy}% accuracy.`
+  };
+}
+
 function offlineTypingResult(mapping, typed, durationMs) {
-  const expected = mapping.target.toLowerCase();
-  const actual = String(typed).toLowerCase();
-  const accuracy = expected.length ? actual.split('').filter((char, i) => char === expected[i]).length / expected.length : 0;
-  const wpm = durationMs > 0 ? (Math.min(expected.length, actual.length) / 5) / (durationMs / 60000) : 0;
-  return accuracy >= 0.95 && wpm >= 20 && wpm <= 250;
+  return scoreTyping(
+    mapping.target || mapping.text,
+    typed,
+    durationMs,
+    mapping.minWpm || 20,
+    mapping.minAccuracy || 95
+  );
 }
 
 export async function gradeExercise(kind, frontendId, answer, durationMs = 0, exercise = null) {
@@ -68,18 +95,21 @@ export async function gradeExercise(kind, frontendId, answer, durationMs = 0, ex
   } catch (error) {
     if (!(error instanceof RetryableRequestError)) throw error;
     await enqueue('grade', request);
-    const passed = kind === 'typing'
-      ? offlineTypingResult(mapping, answer, durationMs)
+    const typing = kind === 'typing'
+      ? offlineTypingResult({ ...mapping, ...exercise }, answer, durationMs)
       : kind === 'excel'
         ? normalise(answer) === '=sum(b1:b5)'
         : /def\s+sum_even\s*\(\s*numbers\s*\)\s*:/i.test(answer) && /%|mod/i.test(answer);
     return {
-      passed,
+      passed: typeof typing === 'object' ? typing.passed : typing,
       source: 'offline',
       pending: true,
-      feedback: passed
-        ? 'Saved for server verification when you are back online.'
-        : 'Saved. Connect to the internet to verify your answer.'
+      ...(typeof typing === 'object' ? { wpm: typing.wpm, accuracy: typing.accuracy } : {}),
+      feedback: typeof typing === 'object'
+        ? `${typing.feedback} ${typing.passed ? 'Saved for server verification when online.' : 'Saved; try again to meet the targets.'}`
+        : typing
+          ? 'Saved for server verification when you are back online.'
+          : 'Saved. Connect to the internet to verify your answer.'
     };
   }
 }
@@ -102,5 +132,3 @@ export async function verifyPortfolio(token) {
   if (!response.ok) throw new Error(`portfolio-verification-failed:${response.status}`);
   return response.json();
 }
-
-export { API_BASE };

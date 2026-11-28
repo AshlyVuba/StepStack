@@ -4,10 +4,11 @@
   "private": true,
   "description": "Using small steps to improve your tech stack.",
   "scripts": {
+    "build": "node scripts/build.js",
     "check:syntax": "node scripts/check-syntax.js",
     "check:size": "node scripts/check-bundle-size.js",
     "check:guardrails": "node scripts/check-guardrails.js",
-    "ci": "npm run check:syntax && npm run check:guardrails && npm run check:pwa && npm run check:size && npm test",
+    "ci": "npm run build && npm run check:syntax && npm run check:guardrails && npm run check:pwa && npm run check:size && npm test",
     "test": "node --test \"tests/*.test.mjs\"",
     "check:pwa": "node scripts/check-pwa.js"
   },

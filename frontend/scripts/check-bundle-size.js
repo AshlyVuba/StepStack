@@ -1,19 +1,30 @@
-// Fails if the shipped payload (HTML + CSS + JS, gzipped) exceeds a budget.
-//  - INITIAL: everything loaded at startup (excludes lazy-loaded exercise content)
-//  - TOTAL:   every client file
-// Usage: node scripts/check-bundle-size.js
+// Fails if shipped assets exceed gzip budgets. Initial JS follows static imports from main.js.
 const fs = require('fs');
 const zlib = require('zlib');
-const { clientFiles, LAZY } = require('./lib');
+const path = require('path');
+const { clientFiles } = require('./lib');
 const BUDGET_INITIAL_KB = 15;
 const BUDGET_TOTAL_KB = 25;
+
+const meta = JSON.parse(fs.readFileSync('scripts/.build-meta.json', 'utf8'));
+const outputs = meta.outputs;
+const entry = Object.keys(outputs).find((file) => outputs[file].entryPoint === 'src/js/main.js');
+if (!entry) throw new Error('Production main.js entry missing; run npm run build first');
+const initialFiles = new Set(['index.html', 'src/css/app.css']);
+function addStaticImports(file) {
+  if (initialFiles.has(file)) return;
+  initialFiles.add(file);
+  (outputs[file]?.imports || []).filter((item) => item.kind === 'import-statement')
+    .forEach((item) => addStaticImports(path.posix.join(path.posix.dirname(file), item.path)));
+}
+addStaticImports(entry);
 
 let initial = 0;
 let total = 0;
 for (const f of clientFiles()) {
   const gz = zlib.gzipSync(fs.readFileSync(f)).length;
   total += gz;
-  const lazy = LAZY.includes(f);
+  const lazy = !initialFiles.has(f);
   if (!lazy) initial += gz;
   console.log(`${f.padEnd(28)} ${(gz / 1024).toFixed(2)} KB gzip${lazy ? '  (lazy)' : ''}`);
 }

@@ -12,7 +12,7 @@ It is built as an offline-first PWA with a grading, translation and verified-por
 
 ```
 .
-├── frontend/   Offline-first PWA (vanilla HTML/CSS/JS, no build step). See frontend/README.md
+├── frontend/   Offline-first PWA (vanilla HTML/CSS/JS, esbuild production bundling)
 ├── backend/    Fastify + TypeScript API: grading, translation, portfolios. See backend/README.md
 ├── docs/       Business proposal, lean canvas and campaign documents
 └── .github/workflows/ci.yml   CI for both projects

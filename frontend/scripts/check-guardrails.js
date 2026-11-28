@@ -5,7 +5,7 @@
 //    (localStorage, sessionStorage, cookies). Learner data goes through src/js/vault.js.
 //    The only allowed use is localStorage.removeItem(...) to delete legacy data.
 const fs = require('fs');
-const { clientFiles, stripComments } = require('./lib');
+const { clientFiles, sourceFiles, stripComments } = require('./lib');
 const errors = [];
 
 const html = fs.readFileSync('index.html', 'utf8');
@@ -15,7 +15,7 @@ const html = fs.readFileSync('index.html', 'utf8');
 const UNSAFE_HTML = /\b(innerHTML|outerHTML|insertAdjacentHTML|dangerouslySetInnerHTML|document\.write(ln)?)\b|\beval\s*\(|\bnew\s+Function\s*\(/g;
 const PLAIN_STORAGE = /\b(?:localStorage|sessionStorage)\b(?!\.removeItem\()|\bdocument\.cookie\b/g;
 
-for (const f of clientFiles().filter((x) => x.endsWith('.js'))) {
+for (const f of [...clientFiles(), ...sourceFiles()].filter((x) => x.endsWith('.js'))) {
   const src = stripComments(fs.readFileSync(f, 'utf8'));
   (src.match(/^\s*import\s[^'"]*['"](?![./])[^'"]+['"]/gm) || [])
     .forEach((i) => errors.push(`Third-party import in ${f}: ${i.trim()}`));
