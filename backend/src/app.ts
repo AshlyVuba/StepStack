@@ -2,9 +2,10 @@ import Fastify from "fastify";
 import helmet from "@fastify/helmet";
 import rateLimit from "@fastify/rate-limit";
 import type { Config } from "./config.js";
-import type { Cache } from "./lib/cache.js";
+import { MemoryCache, type Cache } from "./lib/cache.js";
 import type { PortfolioRepo } from "./modules/portfolio/repo.js";
 import type { Llm } from "./modules/translation/llm.js";
+import { LessonPackStore } from "./modules/translation/packs.js";
 import type { SandboxPool } from "./modules/grading/sandbox/pool.js";
 import { ExerciseStore } from "./modules/grading/exercises.js";
 import { portfolioRoutes } from "./modules/portfolio/routes.js";
@@ -13,7 +14,13 @@ import { translationRoutes } from "./modules/translation/routes.js";
 import { gradingRoutes } from "./modules/grading/routes.js";
 
 export interface Deps {
-  config: Config; repo: PortfolioRepo; cache: Cache; llm: Llm; pool: SandboxPool;
+  config: Config;
+  repo: PortfolioRepo;
+  pool: SandboxPool;
+  cache?: Cache;
+  /** Optional build/test translator; omitted in production (static lesson packs only). */
+  llm?: Llm;
+  packStore?: LessonPackStore;
   /** per-IP python grading submissions per minute (default 20) */
   pythonRatePerMin?: number;
   /** per-IP translate requests per minute (default 30) */
@@ -22,7 +29,7 @@ export interface Deps {
   globalRatePerMin?: number;
 }
 
-/** Dependency-injected so tests can swap in memory repos, a fake LLM, etc. */
+/** Dependency-injected so tests can swap in memory repos, pack stores, fake LLMs, etc. */
 export async function buildApp(d: Deps) {
   // "Trust the first N proxy hops" written as a function: current Fastify typings reject a bare number,
   // and the function form behaves identically. 0 hops = never trust X-Forwarded-For.
@@ -52,12 +59,19 @@ export async function buildApp(d: Deps) {
     return reply.code(302).redirect(target.toString());
   });
 
+  const packStore = d.packStore ?? new LessonPackStore(d.config.LESSON_PACKS_DIR);
+  const translationSvc = new TranslationService(packStore, {
+    llm: d.llm,
+    cache: d.cache ?? new MemoryCache(),
+    model: d.config.TRANSLATION_MODEL,
+  });
+
   portfolioRoutes(app, {
     repo: d.repo, signingKey: d.config.PORTFOLIO_SIGNING_KEY, previousKey: d.config.PORTFOLIO_SIGNING_KEY_PREVIOUS,
     internalKey: d.config.INTERNAL_API_KEY, publicBaseUrl: d.config.PUBLIC_BASE_URL,
     ttlDays: d.config.PORTFOLIO_TTL_DAYS,
   });
-  translationRoutes(app, new TranslationService(d.llm, d.cache, d.config.TRANSLATION_MODEL), {
+  translationRoutes(app, translationSvc, {
     internalKey: d.config.INTERNAL_API_KEY, ratePerMin: d.translateRatePerMin ?? 30,
   });
   gradingRoutes(app, new ExerciseStore(), d.pool, d.pythonRatePerMin ?? 20, d.config.GRADING_PYTHON_ENABLED);

@@ -64,7 +64,7 @@ async function configureQueue() {
   queue.setSender(async (item) => {
     if (!['grade', 'translate'].includes(item.type)) throw new Error('Unsupported queued request');
     const { path, body } = item.payload;
-    if (!['/v1/grade/typing', '/v1/grade/excel', '/v1/grade/python', '/v1/translate'].includes(path))
+    if (!['/v1/grade/typing', '/v1/grade/excel', '/v1/grade/python', '/v1/grade/form', '/v1/translate'].includes(path))
       throw new Error('Unsupported queued endpoint');
     const response = await fetch(`${API_BASE}${path}`, {
       method: 'POST',

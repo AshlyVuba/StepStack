@@ -123,13 +123,57 @@ test('ignores non-GET and cross-origin requests', async () => {
   assert.equal(handled, false);
 });
 
-test('activate deletes old StepStack caches only', async () => {
+test('activate deletes old StepStack caches only and keeps shell + packs caches', async () => {
   const env = makeEnv();
   env.stores.set('stepstack-shell-v1', new Map());
+  env.stores.set('stepstack-packs-v1', new Map());
   env.stores.set('someone-elses-cache', new Map());
   await env.run('install');
   await env.run('activate');
   assert.ok(!env.stores.has('stepstack-shell-v1'));
   assert.ok(env.stores.has('someone-elses-cache'));
   assert.ok(env.stores.has('stepstack-shell-v2'));
+  assert.ok(env.stores.has('stepstack-packs-v1'));
+});
+
+test('OFFLINE: pre-translated 11-language static lesson packs cache on demand and serve offline', async () => {
+  const env = makeEnv();
+  await env.run('install');
+  const zuPack = readFileSync(new URL('../packs/zu.json', import.meta.url), 'utf8');
+  const nsoPack = readFileSync(new URL('../packs/nso.json', import.meta.url), 'utf8');
+  const manifest = readFileSync(new URL('../packs/manifest.json', import.meta.url), 'utf8');
+  env.files.set(abs('./packs/zu.json'), zuPack);
+  env.files.set(abs('./packs/nso.json'), nsoPack);
+  env.files.set(abs('./packs/manifest.json'), manifest);
+
+  // Online fetch caches into stepstack-packs-v1
+  for (const path of ['./packs/manifest.json', './packs/zu.json', './packs/nso.json']) {
+    const res = await (await env.request(path));
+    assert.equal(res.status, 200, path);
+  }
+  assert.ok(env.stores.get('stepstack-packs-v1').has(abs('./packs/zu.json')));
+
+  // Go offline: static lesson packs still serve cleanly from cache with zero network calls
+  env.setOnline(false);
+  const offlineZu = JSON.parse(await (await env.request('./packs/zu.json')).text());
+  const offlineNso = JSON.parse(await (await env.request('./packs/nso.json')).text());
+  assert.equal(offlineZu.language, 'zu');
+  assert.equal(offlineNso.language, 'nso');
+  assert.match(offlineZu.lessons.fin1.body, /=SUM\(B3:B7\)/);
+  assert.match(offlineNso.lessons.fin2.body, /=B2\*B3\*B4/);
+});
+
+test('all 11 compiled offline lesson packs preserve Excel formulas and Python syntax verbatim', () => {
+  const langs = ['en', 'zu', 'xh', 'af', 'nso', 'tn', 'st', 'ts', 'ss', 've', 'nr'];
+  for (const lang of langs) {
+    const pack = JSON.parse(readFileSync(new URL(`../packs/${lang}.json`, import.meta.url), 'utf8'));
+    assert.equal(pack.language, lang);
+    assert.equal(pack.lessons.w1.syntaxLocked, true);
+    assert.match(pack.lessons.w1.body, /SUM/, `${lang} w1 SUM`);
+    assert.match(pack.lessons.w1.body, /A1/, `${lang} w1 A1`);
+    assert.match(pack.lessons.d2.hint, /for i in range\(\.\.\.\):/, `${lang} d2 python`);
+    assert.match(pack.lessons.fin1.body, /=SUM\(B3:B7\)/, `${lang} fin1 formula`);
+    assert.match(pack.lessons.fin2.body, /=B2\*B3\*B4/, `${lang} fin2 formula`);
+    assert.match(pack.lessons.fin4.body, /3601/, `${lang} fin4 IRP5 code`);
+  }
 });

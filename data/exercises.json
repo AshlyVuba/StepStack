@@ -443,5 +443,139 @@
         }
       }
     }
+  ],
+  "finance": [
+    {
+      "id": "fin1",
+      "backendExerciseId": "household-budget",
+      "kind": "excel",
+      "patterns": [
+        "^=\\s*sum\\(\\s*b3\\s*:\\s*b7\\s*\\)$",
+        "^=\\s*b2\\s*-\\s*(b8|sum\\(\\s*b3\\s*:\\s*b7\\s*\\))$"
+      ],
+      "translationStatus": {
+        "en": "needs-team-review",
+        "zu": "needs-fluent-review",
+        "af": "needs-fluent-review"
+      },
+      "text": {
+        "en": {
+          "title": "Household monthly budget (Rand)",
+          "body": "A household's monthly take-home pay (R14 500) is in B2. Monthly expenses are in B3:B7: rent R4 500, groceries R3 200, electricity R1 400, transport R1 800, data R600. Enter =SUM(B3:B7) in B8 for total expenses and =B2-B8 in B9 for the remaining monthly balance.",
+          "hint": "Use =SUM(B3:B7) in B8, then subtract B8 from income in B2."
+        },
+        "zu": {
+          "title": "Isabelomali sanyanga zonke sasekhaya (Rand)",
+          "body": "Umholo wanyanga zonke wasekhaya (R14 500) uku-B2. Izindleko zanyanga zonke ziku-B3:B7: irenti R4 500, ukudla R3 200, ugesi R1 400, ezokuthutha R1 800, idatha R600. Faka u-=SUM(B3:B7) ku-B8 wezindleko eziphelele no-=B2-B8 ku-B9 wemali esele.",
+          "hint": "Sebenzisa u-=SUM(B3:B7) ku-B8, bese ususa u-B8 emholweni oku-B2."
+        },
+        "af": {
+          "title": "Huishoudelike maandelikse begroting (Rand)",
+          "body": "’n Huishouding se maandelikse netto inkomste (R14 500) is in B2. Maandelikse uitgawes is in B3:B7: huur R4 500, kruideniersware R3 200, elektrisiteit R1 400, vervoer R1 800, data R600. Tik =SUM(B3:B7) in B8 vir totale uitgawes en =B2-B8 in B9 vir die oorblywende balans.",
+          "hint": "Gebruik =SUM(B3:B7) in B8 en trek dan B8 van die inkomste in B2 af."
+        }
+      }
+    },
+    {
+      "id": "fin2",
+      "backendExerciseId": "loan-interest",
+      "kind": "excel",
+      "patterns": [
+        "^=\\s*b2\\s*\\*\\s*b3\\s*\\*\\s*b4$",
+        "^=\\s*b2\\s*\\+\\s*b5$",
+        "^=\\s*b2\\s*\\*\\s*\\(\\s*1\\s*\\+\\s*b3\\s*\\*\\s*b4\\s*\\)$"
+      ],
+      "translationStatus": {
+        "en": "needs-team-review",
+        "zu": "needs-fluent-review",
+        "af": "needs-fluent-review"
+      },
+      "text": {
+        "en": {
+          "title": "Microloan simple interest & total repayment",
+          "body": "A personal loan of R10 000 is in B2, the annual interest rate (0.18 for 18%) is in B3, and the term in years (2) is in B4. Enter a formula in B5 to calculate total simple interest (=B2*B3*B4) and in B6 for total repayment (=B2+B5).",
+          "hint": "Multiply principal B2 by rate B3 and years B4 in B5, then add B2 and B5 in B6."
+        },
+        "zu": {
+          "title": "Inzalo yemalimboleko encane kanye nokukhokha konke",
+          "body": "Imalimboleko yomuntu siqu engu-R10 000 iku-B2, izinga lenzalo lonyaka (0.18 elingu-18%) liku-B3, kanti isikhathi seminyaka (2) siku-B4. Faka ifomula ku-B5 ukubala inzalo elula (=B2*B3*B4) nakwi-B6 ukubala inani eliphelele lokukhokha (=B2+B5).",
+          "hint": "Phindaphinda u-B2 ngo-B3 nango-B4 ku-B5, bese uhlanganisa u-B2 no-B5 ku-B6."
+        },
+        "af": {
+          "title": "Mikrolening enkelvoudige rente en totale terugbetaling",
+          "body": "’n Persoonlike lening van R10 000 is in B2, die jaarlikse rentekoers (0.18 vir 18%) is in B3, en die termyn in jare (2) is in B4. Tik ’n formule in B5 om totale enkelvoudige rente te bereken (=B2*B3*B4) en in B6 vir totale terugbetaling (=B2+B5).",
+          "hint": "Vermenigvuldig hoofsom B2 met koers B3 en jare B4 in B5, en tel dan B2 en B5 in B6 bymekaar."
+        }
+      }
+    },
+    {
+      "id": "fin3",
+      "backendExerciseId": "sars-registration",
+      "kind": "form",
+      "simulationOnly": true,
+      "fields": [
+        { "id": "taxReferenceNumber", "type": "string", "required": true, "pattern": "^[01239]\\d{9}$" },
+        { "id": "idNumber", "type": "string", "required": true, "pattern": "^\\d{13}$" },
+        { "id": "taxpayerType", "type": "enum", "required": true, "options": ["Individual", "Company", "Trust"], "expected": "Individual" },
+        { "id": "passwordSafety", "type": "enum", "required": true, "options": ["never-share", "share-with-agent", "post-online"], "expected": "never-share" }
+      ],
+      "translationStatus": {
+        "en": "needs-team-review",
+        "zu": "needs-fluent-review",
+        "af": "needs-fluent-review"
+      },
+      "text": {
+        "en": {
+          "title": "Safe Offline SARS eFiling: Registration Check",
+          "body": "Practice SARS eFiling registration safely offline without touching a live government portal. Enter a 10-digit training tax reference number (e.g. 0123456789), a 13-digit training SA ID number (e.g. 9901015009087), choose Individual as taxpayer type, and confirm the never-share security rule.",
+          "hint": "Use fictional training numbers only. A SARS tax number has 10 digits starting with 0, 1, 2, 3, or 9."
+        },
+        "zu": {
+          "title": "Ukuzilolongela i-SARS eFiling Ungaxhumekile: Ukubhalisa",
+          "body": "Zilolonge ukubhalisela i-SARS eFiling ngokuphepha ungaxhumekile ku-inthanethi ngaphandle kokuthinta ingosi kahulumeni. Faka inombolo yentela yokuzilolonga enamadijithi ayi-10 (isb. 0123456789), inombolo ye-SA ID yokuzilolonga enamadijithi ayi-13 (isb. 9901015009087), khetha u-Individual, bese uqinisekisa umthetho wokuphepha othi never-share.",
+          "hint": "Sebenzisa izinombolo zokuzilolonga kuphela. Inombolo yentela ye-SARS inamadijithi ayi-10 aqala ngo-0, 1, 2, 3, noma 9."
+        },
+        "af": {
+          "title": "Veilige Vanlyn SARS eFiling: Registrasietoets",
+          "body": "Oefen SARS eFiling-registrasie veilig vanlyn sonder om ’n regte regeringsportaal te raak. Tik ’n 10-syfer oefen-belastingverwysingsnommer (bv. 0123456789), ’n 13-syfer oefen-SA ID-nommer (bv. 9901015009087), kies Individual as belastingbetalertipe, en bevestig die never-share sekuriteitsreël.",
+          "hint": "Gebruik slegs fiktiewe oefennommers. ’n SARS-belastingnommer het 10 syfers wat met 0, 1, 2, 3 of 9 begin."
+        }
+      }
+    },
+    {
+      "id": "fin4",
+      "backendExerciseId": "sars-irp5-itr12",
+      "kind": "form",
+      "simulationOnly": true,
+      "fields": [
+        { "id": "taxYear", "type": "number", "required": true, "expected": 2026 },
+        { "id": "code3601", "type": "number", "required": true, "expected": 180000 },
+        { "id": "code4102", "type": "number", "required": true, "expected": 14500 },
+        { "id": "code4005", "type": "number", "required": true, "expected": 18000 },
+        { "id": "declarationConfirmed", "type": "boolean", "required": true, "expected": true }
+      ],
+      "translationStatus": {
+        "en": "needs-team-review",
+        "zu": "needs-fluent-review",
+        "af": "needs-fluent-review"
+      },
+      "text": {
+        "en": {
+          "title": "Safe Offline SARS eFiling: IRP5 & ITR12 Return Basics",
+          "body": "Offline simulation: read the sample 2026 IRP5 certificate and enter the matching SARS source codes into your practice ITR12 form. Code 3601 (Gross Salary): R180 000; Code 4102 (PAYE Deducted): R14 500; Code 4005 (Medical Scheme Contributions): R18 000. Confirm the declaration to submit offline.",
+          "hint": "Match each SARS code carefully: 3601 = Gross Salary (180000), 4102 = PAYE (14500), 4005 = Medical (18000)."
+        },
+        "zu": {
+          "title": "Ukuzilolongela i-SARS eFiling Ungaxhumekile: I-IRP5 ne-ITR12",
+          "body": "Ukulingisa okungaxhumekile ku-inthanethi: funda isitifiketi sesampula se-IRP5 sango-2026 bese ufaka amakhodi e-SARS afanele efomini lakho le-ITR12. Ikhodi 3601 (Umholo Ophelele): R180 000; Ikhodi 4102 (Intela ye-PAYE): R14 500; Ikhodi 4005 (Imali Yezokwelapha): R18 000. Qinisekisa isifungo ukuze uthumele ungaxhumekile.",
+          "hint": "Qondanisa ikhodi ngayinye ye-SARS ngokucophelela: 3601 = 180000, 4102 = 14500, 4005 = 18000."
+        },
+        "af": {
+          "title": "Veilige Vanlyn SARS eFiling: IRP5 & ITR12 Basiese Beginsels",
+          "body": "Vanlyn simulasie: lees die voorbeeld 2026 IRP5-sertifikaat en tik die ooreenstemmende SARS-bronkodes op jou oefen-ITR12-vorm in. Kode 3601 (Bruto Salaris): R180 000; Kode 4102 (LBS Afgetrek): R14 500; Kode 4005 (Mediese Fonds Bydraes): R18 000. Bevestig die verklaring om vanlyn in te dien.",
+          "hint": "Pas elke SARS-kode noukeurig aan: 3601 = 180000, 4102 = 14500, 4005 = 18000."
+        }
+      }
+    }
   ]
 }

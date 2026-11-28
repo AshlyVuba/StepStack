@@ -23,6 +23,7 @@ export function gradeExcel(ex: ExcelExercise, formulas: Record<string, string>):
 
   // 1. static checks (per answer cell)
   const clean: Record<string, string> = {};
+  const allUsed = new Set<string>();
   for (const cell of ex.answerCells) {
     const f = formulas[cell]?.trim();
     if (!f) { fail(cell, "No formula entered."); continue; }
@@ -30,12 +31,20 @@ export function gradeExcel(ex: ExcelExercise, formulas: Record<string, string>):
     if (f.length > MAX_FORMULA_LEN) { fail(cell, "Formula is too long."); continue; }
     if (/[!'\[\]{}]/.test(f)) { fail(cell, "Use only cells on this sheet."); continue; }
     const used = functionsUsed(f);
+    for (const u of used) allUsed.add(u);
     const bad = used.find((u) => !ex.allowedFunctions.includes(u));
     if (bad) { fail(cell, `${bad} isn't needed for this exercise.`); continue; }
     const missing = ex.requiredFunctions.filter((r) => !used.includes(r));
     if (missing.length && ex.answerCells.length === 1) { fail(cell, `Use ${missing.join(", ")} in your formula.`); continue; }
     // Excel accepts bare TRUE/FALSE; HyperFormula wants TRUE()/FALSE()
     clean[cell] = f.replace(/\b(TRUE|FALSE)\b(?!\s*\()/gi, (m) => m.toUpperCase() + "()");
+  }
+  if (ex.answerCells.length > 1 && ex.requiredFunctions.length > 0 && Object.keys(clean).length === ex.answerCells.length) {
+    const missingAll = ex.requiredFunctions.filter((r) => !allUsed.has(r));
+    if (missingAll.length) {
+      fail(ex.answerCells[0]!, `Use ${missingAll.join(", ")} in your spreadsheet solution.`);
+      delete clean[ex.answerCells[0]!];
+    }
   }
 
   // 2. evaluate against every data case

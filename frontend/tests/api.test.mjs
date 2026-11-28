@@ -7,6 +7,10 @@ import { TYPING_STAGES } from '../src/js/typing-game.js';
 
 test('frontend exercise IDs map only to matching server-side graders', () => {
   assert.equal(frontendToBackendExercise('excel', 'w1').exerciseId, 'sum-basic');
+  assert.equal(frontendToBackendExercise('excel', 'fin1').exerciseId, 'household-budget');
+  assert.equal(frontendToBackendExercise('excel', 'fin2').exerciseId, 'loan-interest');
+  assert.equal(frontendToBackendExercise('form', 'fin3').exerciseId, 'sars-registration');
+  assert.equal(frontendToBackendExercise('form', 'fin4').exerciseId, 'sars-irp5-itr12');
   assert.equal(frontendToBackendExercise('python', 'd1').exerciseId, 'sum-even');
   assert.equal(frontendToBackendExercise('excel', 'w2'), undefined);
   assert.equal(TYPING_STAGES.length, 10);

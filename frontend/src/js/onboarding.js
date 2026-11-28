@@ -1,122 +1,77 @@
 import { PATHWAYS } from './config.js';
 
 const $ = (id) => document.getElementById(id);
-const GREETINGS = {
-  en: 'Welcome', zu: 'Sawubona', xh: 'Molo', af: 'Welkom',
-  st: 'Dumela', tn: 'Dumela', nso: 'Thobela', ts: 'Avuxeni',
-  ss: 'Sawubona', ve: 'Ndaa', nr: 'Lotjhani'
+const GREETINGS = { en: 'Welcome', zu: 'Sawubona', xh: 'Molo', af: 'Welkom', st: 'Dumela', tn: 'Dumela', nso: 'Thobela', ts: 'Avuxeni', ss: 'Sawubona', ve: 'Ndaa', nr: 'Lotjhani' };
+const WEIGHTS = { 'first-step': { foundational: 6 }, 'english-friction': { foundational: 4, upskill: 2 }, 'passive-video': { developer: 3, upskill: 3, foundational: 1 }, 'fragmented-tools': { upskill: 4, foundational: 2 } };
+const ACTIVITIES = {
+  'first-step': ['⌨️', 'Try a typing warm-up', 'Build speed with a short hands-on activity.'],
+  'english-friction': ['🌍', 'Explore language-supported learning', 'Switch between all 11 official SA language packs offline.'],
+  'passive-video': ['✋', 'Complete a hands-on activity', 'Practise by doing instead of only watching.'],
+  'fragmented-tools': ['🔗', 'Follow one guided step', 'Complete a focused activity inside StepStack.']
 };
 
-const BARRIER_WEIGHTS = {
-  'first-step': { foundational: 6 },
-  'english-friction': { foundational: 4, upskill: 2 },
-  'passive-video': { developer: 3, upskill: 3, foundational: 1 },
-  'fragmented-tools': { upskill: 4, foundational: 2 }
-};
-
-export function recommend(profile) {
-  const scores = Object.fromEntries(Object.keys(PATHWAYS).map((key) => [key, 0]));
-  (profile.barriers || []).forEach((barrier) => {
-    Object.entries(BARRIER_WEIGHTS[barrier] || {}).forEach(([key, points]) => { scores[key] += points; });
-  });
-  (profile.goals || []).forEach((goal) => { if (Object.hasOwn(scores, goal)) scores[goal] += 5; });
-  if (profile.education === 'Currently working') scores.workplace += 4;
-  if (['Primary school', 'High school'].includes(profile.education)) scores.foundational += 2;
-  if (profile.education === 'Skills programme / bootcamp') scores.upskill += 3;
-  const ranked = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+export function recommend(p) {
+  const s = Object.fromEntries(Object.keys(PATHWAYS).map((k) => [k, 0]));
+  (p.barriers || []).forEach((b) => Object.entries(WEIGHTS[b] || {}).forEach(([k, n]) => { s[k] += n; }));
+  (p.goals || []).forEach((g) => { if (Object.hasOwn(s, g)) s[g] += 5; });
+  if (p.education === 'Currently working') s.workplace += 4;
+  if (['Primary school', 'High school'].includes(p.education)) s.foundational += 2;
+  if (p.education === 'Skills programme / bootcamp') s.upskill += 3;
+  const ranked = Object.entries(s).sort((a, b) => b[1] - a[1]);
   return { primary: ranked[0][0], ranked };
 }
 
-function appendGoal(container, goal, onOpen) {
-  const path = PATHWAYS[goal];
-  if (!path) return;
-  const button = document.createElement('button');
-  button.type = 'button';
-  button.className = 'goal-category';
-  button.dataset.path = goal;
-  button.append(document.createTextNode(`${path.emoji} ${path.title}`));
-  button.addEventListener('click', () => onOpen(goal));
-  container.append(button);
-}
-
-export function renderDashboard(profile, onOpenPathway) {
-  const recommendation = profile.recommendation || recommend(profile);
-  profile.recommendation = recommendation;
-  const primary = PATHWAYS[recommendation.primary] || PATHWAYS.foundational;
-  $('greeting').textContent = `${GREETINGS[profile.language] || 'Welcome'}, ${profile.firstName} 👋`;
+export function renderDashboard(p, onOpen) {
+  const rec = p.recommendation || recommend(p); p.recommendation = rec;
+  const primary = PATHWAYS[rec.primary] || PATHWAYS.foundational;
+  $('greeting').textContent = `${GREETINGS[p.language] || 'Welcome'}, ${p.firstName} 👋`;
   $('recommendationTitle').textContent = primary.title;
   $('recommendationDescription').textContent = primary.description;
   $('recommendationEmoji').textContent = primary.emoji;
-  $('recommendedPathBtn').dataset.path = recommendation.primary;
-  $('choiceCount').textContent = `${profile.goals.length} ${profile.goals.length === 1 ? 'goal' : 'goals'} selected`;
+  $('recommendedPathBtn').dataset.path = rec.primary;
+  $('choiceCount').textContent = `${p.goals.length} ${p.goals.length === 1 ? 'goal' : 'goals'} selected`;
 
-  const goals = $('goalCategories');
-  goals.replaceChildren();
-  if (!profile.goals.length) {
-    const empty = document.createElement('p');
-    empty.className = 'muted';
-    empty.textContent = 'Explore all five pathways below.';
-    goals.append(empty);
-  } else profile.goals.forEach((goal) => appendGoal(goals, goal, onOpenPathway));
-
-  const ranked = $('rankedPathways');
-  ranked.replaceChildren();
-  recommendation.ranked.forEach(([key, score], index) => {
-    const path = PATHWAYS[key];
-    if (!path) return;
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = `ranked-pathway${index === 0 ? ' ranked-primary' : ''}`;
-    button.dataset.path = key;
-    button.append(document.createTextNode(`${path.emoji} ${path.title} · ${score}`));
-    button.addEventListener('click', () => onOpenPathway(key));
-    ranked.append(button);
+  const goals = $('goalCategories'); goals.replaceChildren();
+  if (!p.goals.length) {
+    const empty = document.createElement('p'); empty.className = 'muted'; empty.textContent = 'Explore all five pathways below.'; goals.append(empty);
+  } else p.goals.forEach((g) => {
+    const path = PATHWAYS[g]; if (!path) return;
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'goal-category'; b.dataset.path = g;
+    b.append(document.createTextNode(`${path.emoji} ${path.title}`));
+    b.addEventListener('click', () => onOpen(g)); goals.append(b);
   });
-  $('headerXp').textContent = `${profile.xp || 0} XP`;
-  $('pointsValue').textContent = `${profile.xp || 0} XP`;
-  $('lessonsValue').textContent = `${profile.completedLessons || 0} ${profile.completedLessons === 1 ? 'lesson' : 'lessons'}`;
 
-  const activity = {
-    'first-step': ['⌨️', 'Try a typing warm-up', 'Build speed and confidence with a short hands-on activity.'],
-    'english-friction': ['🌍', 'Explore language-supported learning', 'Choose one of the supported South African languages.'],
-    'passive-video': ['✋', 'Complete a hands-on activity', 'Learn by doing instead of only watching a tutorial.'],
-    'fragmented-tools': ['🔗', 'Follow one guided step', 'Complete a focused activity inside StepStack.']
-  }[profile.barriers[0]] || ['🚀', 'Start your first 5-minute step', 'Choose a pathway and complete a short hands-on lesson.'];
-  $('activityIcon').textContent = activity[0];
-  $('activityTitle').textContent = activity[1];
-  $('activityDescription').textContent = activity[2];
+  const ranked = $('rankedPathways'); ranked.replaceChildren();
+  rec.ranked.forEach(([k, score], i) => {
+    const path = PATHWAYS[k]; if (!path) return;
+    const b = document.createElement('button'); b.type = 'button'; b.className = `ranked-pathway${i === 0 ? ' ranked-primary' : ''}`; b.dataset.path = k;
+    b.append(document.createTextNode(`${path.emoji} ${path.title} · ${score}`));
+    b.addEventListener('click', () => onOpen(k)); ranked.append(b);
+  });
+  $('headerXp').textContent = $('pointsValue').textContent = `${p.xp || 0} XP`;
+  $('lessonsValue').textContent = `${p.completedLessons || 0} ${p.completedLessons === 1 ? 'lesson' : 'lessons'}`;
+
+  const [icon, title, desc] = ACTIVITIES[p.barriers[0]] || ['🚀', 'Start your first 5-minute step', 'Choose a pathway and complete a hands-on lesson.'];
+  $('activityIcon').textContent = icon; $('activityTitle').textContent = title; $('activityDescription').textContent = desc;
 }
 
 export function bindOnboarding({ onSubmit, onLanguageChange, getDevice }) {
-  $('learnerForm').addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const data = new window.FormData(event.currentTarget);
+  $('learnerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const d = new window.FormData(e.currentTarget);
     const profile = {
-      firstName: String(data.get('firstName') || '').trim(),
-      surname: String(data.get('surname') || '').trim(),
-      age: Number(data.get('age')),
-      education: String(data.get('education') || ''),
-      barriers: data.getAll('barriers').map(String),
-      goals: data.getAll('goals').map(String),
-      device: getDevice(),
-      language: $('language').value || 'en',
-      xp: 120,
-      completedLessons: 0,
-      streak: 0
+      firstName: String(d.get('firstName') || '').trim(), surname: String(d.get('surname') || '').trim(),
+      age: Number(d.get('age')), education: String(d.get('education') || ''),
+      barriers: d.getAll('barriers').map(String), goals: d.getAll('goals').map(String),
+      device: getDevice(), language: $('language').value || 'en', xp: 120, completedLessons: 0, streak: 0
     };
     profile.recommendation = recommend(profile);
     await onSubmit(profile, $('prototypeSharedPasscode').value);
   });
-
-  $('language').addEventListener('change', (event) => onLanguageChange(event.currentTarget.value));
+  $('language').addEventListener('change', (e) => onLanguageChange(e.currentTarget.value));
 }
 
 export function clearProfileView() {
   $('choiceCount').textContent = '0 goals selected';
-  $('activityIcon').textContent = '';
-  $('activityTitle').textContent = '';
-  $('activityDescription').textContent = '';
-  $('headerXp').textContent = '';
-  $('pointsValue').textContent = '';
-  $('lessonsValue').textContent = '';
+  ['activityIcon', 'activityTitle', 'activityDescription', 'headerXp', 'pointsValue', 'lessonsValue'].forEach((id) => { $(id).textContent = ''; });
 }

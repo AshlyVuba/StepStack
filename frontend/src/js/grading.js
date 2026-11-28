@@ -1,5 +1,6 @@
-// Local grading remains available offline; supported exercises also use the server grader.
-import { API_BASE, EXERCISE_MAP, verifyEndpoint } from './config.js';
+// Deterministic offline grading, 10-stage typing scorer, static 11-language lesson packs, and server sync.
+import { API_BASE, EXERCISE_MAP, SUPPORTED_LANGUAGES, packEndpoint, verifyEndpoint } from './config.js';
+import { get as idbGet, put as idbPut } from './idb.js';
 import { enqueue } from './queue.js';
 
 export function normalise(value) {
@@ -9,7 +10,72 @@ export function normalise(value) {
     .replace(/[\u201c\u201d\u2018\u2019']/g, '"');
 }
 
+export function parseRand(value) {
+  if (typeof value === 'number') return value;
+  const cleaned = String(value ?? '').trim().replace(/^r\s*/i, '').replace(/[\s,]+/g, '');
+  return cleaned ? Number(cleaned) : Number.NaN;
+}
+
+const rule = (id, type, extra) => ({ id, type, required: true, ...extra });
+export const FORM_RULES = {
+  fin3: {
+    fields: [
+      rule('taxReferenceNumber', 'string', { pattern: '^[01239]\\d{9}$' }),
+      rule('idNumber', 'string', { pattern: '^\\d{13}$' }),
+      rule('taxpayerType', 'enum', { options: ['Individual', 'Company', 'Trust'], expected: 'Individual' }),
+      rule('passwordSafety', 'enum', { options: ['never-share', 'share-with-agent', 'post-online'], expected: 'never-share' })
+    ]
+  },
+  fin4: {
+    fields: [
+      rule('taxYear', 'number', { expected: 2026 }),
+      rule('code3601', 'number', { expected: 180000 }),
+      rule('code4102', 'number', { expected: 14500 }),
+      rule('code4005', 'number', { expected: 18000 }),
+      rule('declarationConfirmed', 'boolean', { expected: true })
+    ]
+  }
+};
+
+const EXCEL_OFFLINE = {
+  w1: { B6: '^=sum\\(b1:b5\\)$' },
+  fin1: { B8: '^=sum\\(b3:b7\\)$', B9: '^=b2-(b8|sum\\(b3:b7\\))$' },
+  fin2: { B5: '^=(b2\\*b3\\*b4|round\\(b2\\*b3\\*b4,2\\))$', B6: '^=(b2\\+b5|b2\\*\\(1\\+b3\\*b4\\))$' }
+};
+
+export function gradeForm(exercise, submission = {}) {
+  const fields = (exercise.fields || []).map((f) => {
+    const val = submission[f.id];
+    if (val == null || (typeof val === 'string' && !val.trim())) return { id: f.id, passed: !f.required };
+    if (f.type === 'boolean') {
+      const b = typeof val === 'boolean' ? val : /^true$/i.test(String(val).trim());
+      return { id: f.id, passed: f.expected === undefined || b === f.expected };
+    }
+    if (f.type === 'number') {
+      const n = parseRand(val);
+      return { id: f.id, passed: Number.isFinite(n) && (f.expected === undefined || Math.abs(n - f.expected) < 1e-6) };
+    }
+    const s = String(val).trim();
+    if (f.type === 'enum') {
+      return { id: f.id, passed: (!f.options || f.options.includes(s)) && (f.expected === undefined || s === f.expected) };
+    }
+    const compact = s.replace(/\s+/g, '');
+    return {
+      id: f.id,
+      passed: (!f.pattern || new RegExp(f.pattern).test(compact)) && (f.expected === undefined || compact === f.expected)
+    };
+  });
+  const passed = fields.every((item) => item.passed);
+  return {
+    passed,
+    simulationOnly: true,
+    fields,
+    feedback: passed ? 'Pass! All simulated form fields are valid.' : 'Check the highlighted form fields.'
+  };
+}
+
 export function grade(exercise, value) {
+  if (exercise.fields) return gradeForm(exercise, value).passed;
   if (exercise.minLength) return String(value).trim().length >= exercise.minLength;
   return exercise.patterns.some((pattern) => new RegExp(pattern, 'i').test(normalise(value)));
 }
@@ -46,7 +112,14 @@ const requestFor = (kind, mapping, answer, durationMs) => {
   };
   if (kind === 'excel') return {
     path: '/v1/grade/excel',
-    body: { exerciseId: mapping.exerciseId, formulas: { [mapping.answerCell]: answer } }
+    body: {
+      exerciseId: mapping.exerciseId,
+      formulas: typeof answer === 'object' && answer ? answer : { [mapping.answerCell]: answer }
+    }
+  };
+  if (kind === 'form') return {
+    path: '/v1/grade/form',
+    body: { exerciseId: mapping.exerciseId, fields: answer }
   };
   return { path: '/v1/grade/python', body: { exerciseId: mapping.exerciseId, code: answer } };
 };
@@ -87,7 +160,10 @@ function offlineTypingResult(mapping, typed, durationMs) {
 
 export async function gradeExercise(kind, frontendId, answer, durationMs = 0, exercise = null) {
   const mapping = frontendToBackendExercise(kind, frontendId);
-  if (!mapping) return { passed: exercise ? grade(exercise, answer) : false, source: 'local' };
+  if (!mapping) {
+    if (exercise?.fields) return { ...gradeForm(exercise, answer), source: 'local' };
+    return { passed: exercise ? grade(exercise, answer) : false, source: 'local' };
+  }
 
   const request = requestFor(kind, mapping, answer, durationMs);
   try {
@@ -95,10 +171,14 @@ export async function gradeExercise(kind, frontendId, answer, durationMs = 0, ex
   } catch (error) {
     if (!(error instanceof RetryableRequestError)) throw error;
     await enqueue('grade', request);
+    if (kind === 'form') {
+      return { ...gradeForm(FORM_RULES[frontendId] || exercise || {}, answer), source: 'offline', pending: true };
+    }
     const typing = kind === 'typing'
       ? offlineTypingResult({ ...mapping, ...exercise }, answer, durationMs)
       : kind === 'excel'
-        ? normalise(answer) === '=sum(b1:b5)'
+        ? Object.entries(EXCEL_OFFLINE[frontendId] || EXCEL_OFFLINE.w1).every(([cell, pattern]) =>
+            new RegExp(pattern, 'i').test(normalise(typeof answer === 'object' && answer ? answer[cell] || '' : answer)))
         : /def\s+sum_even\s*\(\s*numbers\s*\)\s*:/i.test(answer) && /%|mod/i.test(answer);
     return {
       passed: typeof typing === 'object' ? typing.passed : typing,
@@ -114,7 +194,34 @@ export async function gradeExercise(kind, frontendId, answer, durationMs = 0, ex
   }
 }
 
+export async function loadLessonPack(lang) {
+  if (!SUPPORTED_LANGUAGES.includes(lang)) throw new Error('unsupported-language');
+  try {
+    if (typeof indexedDB !== 'undefined') {
+      const stored = await idbGet('packs', lang);
+      if (stored?.lessons) return stored;
+    }
+  } catch (error) { /* fall through to static pack fetch */ }
+  for (const url of [`./packs/${lang}.json`, packEndpoint(lang)]) {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) continue;
+      const pack = await res.json();
+      if (pack?.lessons && typeof indexedDB !== 'undefined') {
+        try { await idbPut('packs', lang, pack); } catch (error) { /* ignore storage quota */ }
+      }
+      return pack;
+    } catch (error) { /* try next source */ }
+  }
+  return null;
+}
+
 export async function translateText(text, targetLang, kind = 'learner') {
+  if (kind === 'lesson' && SUPPORTED_LANGUAGES.includes(targetLang)) {
+    const pack = await loadLessonPack(targetLang);
+    const hit = pack && Object.values(pack.lessons).find((l) => l.body === text || l.title === text);
+    if (hit) return { translation: hit.body, language: targetLang, cached: true, source: 'pack' };
+  }
   const body = { text, targetLang, kind };
   try {
     return await postJson('/v1/translate', body);
@@ -132,3 +239,5 @@ export async function verifyPortfolio(token) {
   if (!response.ok) throw new Error(`portfolio-verification-failed:${response.status}`);
   return response.json();
 }
+
+export { API_BASE };

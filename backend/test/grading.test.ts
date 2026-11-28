@@ -69,6 +69,96 @@ describe("excel", () => {
     expect((await grade("excel", { exerciseId: "sum-basic", formulas: { B6: "=SUM(B1:B5)+NOW()" } })).json().passed).toBe(false);
     expect((await grade("excel", { exerciseId: "sum-basic", formulas: { B6: "=SUM(Other!B1:B5)" } })).json().passed).toBe(false);
   });
+  it("Financial Literacy — Household Budget (ZAR): validates SUM and balance, rejects hardcoded values", async () => {
+    expect((await grade("excel", {
+      exerciseId: "household-budget",
+      formulas: { B8: "=SUM(B3:B7)", B9: "=B2-B8" },
+    })).json().passed).toBe(true);
+    expect((await grade("excel", {
+      exerciseId: "household-budget",
+      formulas: { B8: "=SUM(B3:B7)", B9: "=B2-SUM(B3:B7)" },
+    })).json().passed).toBe(true);
+    expect((await grade("excel", {
+      exerciseId: "household-budget",
+      formulas: { B8: "=11500", B9: "=3000" },
+    })).json().passed).toBe(false);
+    expect((await grade("excel", {
+      exerciseId: "household-budget",
+      formulas: { B8: "=B3+B4+B5+B6+B7", B9: "=B2-B8" },
+    })).json().passed).toBe(false); // SUM is required
+  });
+  it("Financial Literacy — Microloan Interest (ZAR): validates interest and repayment across scenarios", async () => {
+    expect((await grade("excel", {
+      exerciseId: "loan-interest",
+      formulas: { B5: "=B2*B3*B4", B6: "=B2+B5" },
+    })).json().passed).toBe(true);
+    expect((await grade("excel", {
+      exerciseId: "loan-interest",
+      formulas: { B5: "=ROUND(B2*B3*B4,2)", B6: "=B2*(1+B3*B4)" },
+    })).json().passed).toBe(true);
+    expect((await grade("excel", {
+      exerciseId: "loan-interest",
+      formulas: { B5: "=3600", B6: "=13600" },
+    })).json().passed).toBe(false);
+  });
+});
+
+describe("financial literacy — safe offline SARS eFiling form simulation", () => {
+  it("grades SARS registration fields deterministically and marks simulationOnly", async () => {
+    const ok = (await grade("form", {
+      exerciseId: "sars-registration",
+      fields: {
+        taxReferenceNumber: "0123456789",
+        idNumber: "9901015009087",
+        taxpayerType: "Individual",
+        passwordSafety: "never-share",
+      },
+    })).json();
+    expect(ok.passed).toBe(true);
+    expect(ok.simulationOnly).toBe(true);
+
+    const bad = (await grade("form", {
+      exerciseId: "sars-registration",
+      fields: {
+        taxReferenceNumber: "55555",
+        idNumber: "990101",
+        taxpayerType: "Company",
+        passwordSafety: "share-with-agent",
+      },
+    })).json();
+    expect(bad.passed).toBe(false);
+    expect(bad.fields.every((f: any) => !f.passed)).toBe(true);
+  });
+
+  it("grades IRP5 & ITR12 source codes including Rand currency formatting", async () => {
+    const okRand = (await grade("form", {
+      exerciseId: "sars-irp5-itr12",
+      fields: {
+        taxYear: 2026,
+        code3601: "R180 000",
+        code4102: "R 14,500",
+        code4005: 18000,
+        declarationConfirmed: true,
+      },
+    })).json();
+    expect(okRand.passed).toBe(true);
+    expect(okRand.simulationOnly).toBe(true);
+
+    const bad = (await grade("form", {
+      exerciseId: "sars-irp5-itr12",
+      fields: {
+        taxYear: 2025,
+        code3601: 180000,
+        code4102: 14500,
+        code4005: 18000,
+        declarationConfirmed: false,
+      },
+    })).json();
+    expect(bad.passed).toBe(false);
+    expect(bad.fields.find((f: any) => f.id === "taxYear").passed).toBe(false);
+    expect(bad.fields.find((f: any) => f.id === "declarationConfirmed").passed).toBe(false);
+    expect((await grade("form", { exerciseId: "unknown-sars", fields: {} })).statusCode).toBe(404);
+  });
 });
 
 describe("python sandbox", () => {

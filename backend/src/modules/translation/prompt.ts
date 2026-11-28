@@ -1,13 +1,26 @@
-export const PROMPT_VERSION = "v1"; // bump to invalidate every cached translation
+export const PROMPT_VERSION = "v2"; // bump to invalidate pre-compiled lesson packs
 
+/** All 11 official written languages of South Africa. */
 export const LANGUAGES = {
+  en: "English",
   zu: "isiZulu",
   xh: "isiXhosa",
-  st: "Sesotho",
-  tn: "Setswana",
   af: "Afrikaans",
+  nso: "Sepedi",
+  tn: "Setswana",
+  st: "Sesotho",
+  ts: "Xitsonga",
+  ss: "siSwati",
+  ve: "Tshivenda",
+  nr: "isiNdebele",
 } as const;
+
 export type LangCode = keyof typeof LANGUAGES;
+export const SUPPORTED_LANG_CODES = Object.keys(LANGUAGES) as LangCode[];
+
+export function isLangCode(value: string): value is LangCode {
+  return Object.prototype.hasOwnProperty.call(LANGUAGES, value);
+}
 
 export function systemPrompt(lang: LangCode): string {
   return `You are a translation engine for a digital-skills learning platform in South Africa.

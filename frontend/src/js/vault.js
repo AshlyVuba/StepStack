@@ -1,11 +1,3 @@
-// The vault owns the encryption key and every read/write of learner data.
-// Nothing is ever written in plaintext; there is no localStorage fallback.
-// If IndexedDB is unavailable the vault works in memory only (nothing persists).
-//
-// Modes:
-//   personal - random non-extractable key kept in IndexedDB; no idle timeout
-//   shared   - key derived from a passcode and held ONLY in memory; dropping it
-//              (lock) makes the stored data unreadable until the passcode is entered
 import * as db from './idb.js';
 import { generateKey, deriveKey, randomBytes, encryptJSON, decryptJSON, PBKDF2_ITERATIONS } from './crypto.js';
 

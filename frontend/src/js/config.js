@@ -9,8 +9,12 @@ const defaultApi = globalThis.location?.origin && !globalThis.location.origin.st
 const apiUrl = new URL(configuredApi || defaultApi, globalThis.location?.href || 'http://localhost/');
 if (!['http:', 'https:'].includes(apiUrl.protocol) || apiUrl.username || apiUrl.password)
   throw new Error('API base URL must use HTTP or HTTPS without credentials');
+
 export const API_BASE = apiUrl.href.replace(/\/$/, '');
+export const translateEndpoint = `${API_BASE}/v1/translate`;
+export const packEndpoint = (lang) => `${API_BASE}/v1/lesson-packs/${encodeURIComponent(lang)}`;
 export const verifyEndpoint = (token) => `${API_BASE}/v1/verify/${encodeURIComponent(token)}`;
+export const SUPPORTED_LANGUAGES = ['en', 'zu', 'xh', 'af', 'nso', 'tn', 'st', 'ts', 'ss', 've', 'nr'];
 
 export const PATHWAYS = {
   foundational: {
@@ -35,15 +39,23 @@ export const PATHWAYS = {
   },
   finance: {
     title: 'Financial Literacy', emoji: '💰',
-    description: 'Learn to budget, save, understand banking and plan for the future.',
-    lessons: ['Understanding money', 'Budgeting', 'Saving', 'Banking basics', 'Credit and debt', 'Understanding payslips', 'Financial planning']
+    description: 'Budget in Rand, calculate loan interest and practise safe offline SARS eFiling.',
+    lessons: ['Household budget (ZAR)', 'Loan interest & repayment', 'SARS eFiling: Registration', 'SARS eFiling: IRP5 & ITR12', 'Banking basics', 'Understanding payslips', 'Financial planning']
   }
 };
 
 // Only these exercises have matching server-side grader definitions.
 export const EXERCISE_MAP = {
   typing: {},
-  excel: { w1: { exerciseId: 'sum-basic', answerCell: 'B6' } },
+  excel: {
+    w1: { exerciseId: 'sum-basic', answerCell: 'B6' },
+    fin1: { exerciseId: 'household-budget', answerCells: ['B8', 'B9'] },
+    fin2: { exerciseId: 'loan-interest', answerCells: ['B5', 'B6'] }
+  },
+  form: {
+    fin3: { exerciseId: 'sars-registration' },
+    fin4: { exerciseId: 'sars-irp5-itr12' }
+  },
   python: {
     d1: { exerciseId: 'sum-even' },
     d2: { exerciseId: 'count-words' }

@@ -2,27 +2,30 @@
 
 > Using small steps to improve your tech stack.
 
-StepStack is an adaptive, exercise-driven digital skills app that meets learners at their starting point (typing and computer
-basics, Excel and office skills, or software development) and explains concepts in their home South African language.
-It is built as an offline-first PWA with a grading, translation and verified-portfolio backend.
+StepStack is an adaptive, exercise-driven digital and financial skills platform built for South African learners. It meets learners at their starting point (Typing & Computer Basics including a 10-stage offline Typing Foundation game, Workplace Ready / Excel, Developer Mode / Python, Upskill & Training, and Financial Literacy including Rand household budgeting and safe offline SARS eFiling simulations) and delivers pre-translated, syntax-verified offline lesson packs across all 11 official South African languages (`en`, `zu`, `xh`, `af`, `nso`, `tn`, `st`, `ts`, `ss`, `ve`, `nr`).
 
 **Theme:** Digital Inclusion & Access · **Category:** EdTech & Workforce Employability
+
+## Core Architecture Highlights
+
+- **Pre-Translated 11-Language Offline Lesson Packs (Zero Live Runtime LLM Inference):** Production never runs a heavy local CPU/GPU LLM inference server per learner click. Master lessons from `data/exercises.json` are compiled ahead of time via `npm run build:packs` through a syntax-lock layer (`protect.ts` + `sanitize.ts`) that guarantees Excel formulas (e.g. `=SUM(A1:A5)`, `=B2*B3*B4`) and Python keywords are never altered. Versioned static JSON bundles are served from `frontend/packs/` and `GET /v1/lesson-packs/:lang`, cached by `frontend/sw.js` and stored locally in IndexedDB (`frontend/src/js/idb.js`) for 100% offline use.
+- **Deterministic Offline Grading + Cryptographic Signing on Sync:** Learners get instant deterministic client-side feedback on the 10-stage offline Typing Foundation game, spreadsheets (household budgeting & loan interest in ZAR), Python exercises, and safe offline SARS eFiling form-validation drills (tax registration, IRP5 codes, ITR12 basics — zero connection to live government portals). When back online, encrypted queued submissions sync to the backend for deterministic server-side grading (HyperFormula, single-use Pyodide WebAssembly sandbox, structured SARS form grader) and HMAC-SHA-256 signed portfolio verification.
+- **Shared-Device Privacy & Lightweight PWA:** Vanilla ES modules with `esbuild` production bundling, zero third-party runtime dependencies, AES-256-GCM encrypted IndexedDB vault, 5-minute shared-device idle logout, and strict CI bundle budgets (<15 KB gzipped initial, <25 KB total).
 
 ## Repository layout
 
 ```
 .
-├── frontend/   Offline-first PWA (vanilla HTML/CSS/JS, esbuild production bundling)
-├── backend/    Fastify + TypeScript API: grading, translation, portfolios. See backend/README.md
-├── docs/       Business proposal, lean canvas and campaign documents
+├── data/exercises.json        Master curriculum catalogue (Foundational, Workplace, Developer, Financial Literacy)
+├── frontend/                  Offline-first PWA (vanilla HTML/CSS/JS, esbuild production bundling, static 11-language packs in frontend/packs/)
+├── backend/                   Fastify + TypeScript API: static lesson packs, deterministic grading, signed portfolios
+├── docs/                      Architecture diagrams, business proposal, lean canvas and campaign documents
 └── .github/workflows/ci.yml   CI for both projects
 ```
 
-The projects have separate dependencies and run processes. The frontend is an offline-first PWA; when the backend is running it also uses the public grading, translation, and portfolio-verification API endpoints.
-
 ## Quick start
 
-### Frontend only (offline features)
+### Frontend only (100% offline features)
 
 Requires Node.js 22+ and Python 3. From PowerShell:
 
@@ -33,55 +36,48 @@ npm run ci
 python -m http.server 8080
 ```
 
-Open <http://localhost:8080>. Keep the server running; `file://` will not work. Grading and translation need the backend below; the app can still be explored offline.
+Open <http://localhost:8080>. Keep the server running; `file://` will not work. Pre-translated 11-language lesson packs, the 10-stage Typing Foundation game, encrypted progress storage, and deterministic practice grading work 100% offline.
 
 ### Full app (frontend + API)
 
-Also requires Docker Desktop and an Anthropic API key for translation. In a **second** PowerShell terminal:
+Requires Docker Desktop (for PostgreSQL). **No live LLM server or `ANTHROPIC_API_KEY` is required to run production.** In a **second** PowerShell terminal:
 
 ```powershell
 Set-Location backend
 Copy-Item .env.example .env
 ```
 
-Generate secrets (copy the four output values into `.env`; do not commit that file):
+Generate secrets (copy the output values into `.env`; do not commit that file):
 
 ```powershell
-node -e "const c=require('crypto'); console.log('PORTFOLIO_SIGNING_KEY='+c.randomBytes(48).toString('base64')); console.log('INTERNAL_API_KEY='+c.randomBytes(32).toString('hex')); console.log('POSTGRES_PASSWORD='+c.randomBytes(24).toString('hex')); console.log('REDIS_PASSWORD='+c.randomBytes(24).toString('hex'))"
+node -e "const c=require('crypto'); console.log('PORTFOLIO_SIGNING_KEY='+c.randomBytes(48).toString('base64')); console.log('INTERNAL_API_KEY='+c.randomBytes(32).toString('hex')); console.log('POSTGRES_PASSWORD='+c.randomBytes(24).toString('hex'))"
 ```
 
-In `.env`, set `DATABASE_URL` to `postgres://skills:<POSTGRES_PASSWORD>@localhost:5432/skills`, `REDIS_URL` to `redis://:<REDIS_PASSWORD>@localhost:6379`, add your `ANTHROPIC_API_KEY`, and set `PUBLIC_BASE_URL=http://localhost:3000` and `FRONTEND_BASE_URL=http://localhost:8080`. Keep the default `CORS_ORIGIN`, which already allows the frontend on port 8080.
+In `.env`, set `DATABASE_URL` to `postgres://skills:<POSTGRES_PASSWORD>@localhost:5432/skills`, `PUBLIC_BASE_URL=http://localhost:3000`, and `FRONTEND_BASE_URL=http://localhost:8080`. Keep the default `CORS_ORIGIN`, which already allows the frontend on port 8080.
 
-Then start the API and databases:
+Then start PostgreSQL and the API:
 
 ```powershell
-docker compose up -d postgres redis
+docker compose up -d postgres
 npm ci
+npm run build:packs
 npm run migrate
 npm run dev
 ```
 
-In the first PowerShell terminal, start the frontend if it is not already running:
-
-```powershell
-Set-Location frontend
-python -m http.server 8080
-```
-
-Open <http://localhost:8080>. Stop the frontend and API with `Ctrl+C`; stop the database containers with `docker compose down` from `backend\`.
+*(Optional build-time regeneration with Claude: set `ANTHROPIC_API_KEY` and run `npm run build:packs -- --live`. Without an API key, `npm run build:packs` runs in deterministic fallback mode for CI.)*
 
 ## Continuous integration
 
 GitHub Actions runs two jobs on every push to `main` and every pull request:
 
-- **frontend:** syntax, guardrails (no third-party libraries, HTML injection or unencrypted storage), PWA/offline
-  cache check, unit and end-to-end tests, bundle-size budget
-- **backend:** typecheck and the test suite
+- **frontend:** `esbuild` bundle, syntax, guardrails (no third-party libraries, HTML injection or unencrypted storage), PWA/offline cache check, unit and end-to-end tests, bundle-size budget (<15 KB initial / <25 KB total gzipped)
+- **backend:** typecheck and the Vitest suite (static 11-language lesson packs, syntax-lock checks, 10-stage Typing Foundation, Excel/Budgeting/Loan Interest, SARS eFiling form validation, Pyodide sandbox, signed portfolios)
 
 ## Contributing
 
 - Reference the issue number in commit messages, for example `feat(pwa): ... (#3)`.
-- Frontend rules (encrypted storage only, `textContent` only, size budget) are in `frontend/README.md` and enforced by CI.
+- Frontend rules (encrypted storage only, `textContent` only, size budget) are enforced by CI.
 - Never commit `.env` files or secrets. The backend refuses to start without its required secrets.
 
 ## License

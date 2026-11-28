@@ -2,6 +2,7 @@ import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { gradeTyping } from "./typing.js";
 import { gradeExcel } from "./excel.js";
+import { gradeForm } from "./form.js";
 import type { ExerciseStore } from "./exercises.js";
 import type { SandboxPool } from "./sandbox/pool.js";
 
@@ -13,6 +14,13 @@ const typingBody = z.object({
 const excelBody = z.object({
   exerciseId: z.string().max(100),
   formulas: z.record(z.string().regex(/^[A-Z]{1,2}[0-9]{1,4}$/), z.string().max(300)).refine((o) => Object.keys(o).length <= 20),
+});
+const formBody = z.object({
+  exerciseId: z.string().max(100),
+  fields: z.record(
+    z.string().regex(/^[a-zA-Z0-9_-]{1,60}$/),
+    z.union([z.string().max(200), z.number().finite(), z.boolean()]),
+  ).refine((o) => Object.keys(o).length <= 30),
 });
 const pythonBody = z.object({ exerciseId: z.string().max(100), code: z.string().min(1).max(10_000) });
 
@@ -31,6 +39,14 @@ export function gradingRoutes(app: FastifyInstance, store: ExerciseStore, pool: 
     const ex = store.excel.get(b.data.exerciseId);
     if (!ex) return reply.code(404).send({ error: "unknown_exercise" });
     return gradeExcel(ex, b.data.formulas);
+  });
+
+  app.post("/v1/grade/form", { bodyLimit: 16 * 1024 }, async (req, reply) => {
+    const b = formBody.safeParse(req.body);
+    if (!b.success) return reply.code(400).send({ error: "invalid_request" });
+    const ex = store.form.get(b.data.exerciseId);
+    if (!ex) return reply.code(404).send({ error: "unknown_exercise" });
+    return gradeForm(ex, b.data.fields);
   });
 
   app.post("/v1/grade/python", { bodyLimit: 32 * 1024, config: { rateLimit: { max: pythonRatePerMin, timeWindow: "1 minute" } } }, async (req, reply) => {

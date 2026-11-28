@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 
 /** Exercises (and their expected answers) live on the server only; clients send just an exerciseId. */
@@ -15,10 +15,30 @@ export interface PythonExercise {
   id: string; title: string; functionName: string;
   tests: { args: unknown[]; expected: unknown; hidden?: boolean }[];
 }
+export interface FormFieldRule {
+  id: string;
+  label: string;
+  type: "string" | "number" | "boolean" | "enum";
+  required?: boolean;
+  pattern?: string;
+  expected?: string | number | boolean;
+  min?: number;
+  max?: number;
+  options?: string[];
+  hint: string;
+}
+export interface FormExercise {
+  id: string;
+  title: string;
+  category: "sars-efiling" | "finance";
+  simulationNotice: string;
+  fields: FormFieldRule[];
+}
 
 function loadDir<T extends { id: string }>(dir: string): Map<string, T> {
   const base = resolve(process.cwd(), "exercises", dir);
   const m = new Map<string, T>();
+  if (!existsSync(base)) return m;
   for (const f of readdirSync(base).filter((f) => f.endsWith(".json"))) {
     const e = JSON.parse(readFileSync(join(base, f), "utf8")) as T;
     m.set(e.id, e);
@@ -30,4 +50,5 @@ export class ExerciseStore {
   typing = loadDir<TypingExercise>("typing");
   excel = loadDir<ExcelExercise>("excel");
   python = loadDir<PythonExercise>("python");
+  form = loadDir<FormExercise>("form");
 }

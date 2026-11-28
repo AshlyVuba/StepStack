@@ -1,29 +1,23 @@
 sequenceDiagram
-  participant C as Client (future caller)
-  participant R as POST /v1/translate
-  participant S as TranslationService
-  participant K as Redis cache
-  participant L as Anthropic API
-  C->>R: text, targetLang, kind
-  Note over R: Validate (up to 5,000 chars, 5 languages)
-  R->>S: translate(text, lang, kind)
-  Note over S: Sanitize text, then build cache key: tr: + SHA-256 of prompt version, model, language, text
-  alt kind is lesson
-    S->>K: GET key
-    alt cache hit
-      K-->>S: stored translation
-      S-->>C: translation, cached true
-    else cache miss
-      Note over S: Identical concurrent requests share one in-flight call
-      Note over S: protect(): swap code and formulas for numbered placeholders
-      S->>L: system prompt + text to translate
-      L-->>S: translated text
-      Note over S: restore(): every placeholder back? If not, retry once, then 502
-      S->>K: SET key with 30-day TTL
-      S-->>C: translation, cached false
-    end
-  else kind is learner
-    Note over S,K: Free-form learner text is never cached
-    S->>L: same protect, call and restore steps
-    S-->>C: translation, cached false
+  participant B as Build CLI (build-lesson-packs.ts)
+  participant P as protect.ts + sanitize.ts
+  participant S as Static Bundles (frontend/packs & GET /v1/lesson-packs/:lang)
+  participant SW as Service Worker (sw.js) + IndexedDB (idb.js)
+  participant L as Learner PWA (100% Offline)
+
+  Note over B,P: Build / CI Time (Zero live CPU/GPU inference at runtime)
+  B->>P: Read master lessons from data/exercises.json
+  Note over P: sanitize() + protect() lock Excel formulas (=SUM, =B2*B3*B4) and Python syntax
+  P-->>B: Syntax-verified text across all 11 official SA languages
+  B->>S: Write versioned JSON packs (en, zu, xh, af, nso, tn, st, ts, ss, ve, nr) + manifest.json
+
+  Note over SW,L: Learner Runtime (Instant, Offline-First)
+  L->>SW: Select language (e.g. isiZulu / Sepedi / Afrikaans)
+  alt Pack already in IndexedDB or SW cache
+    SW-->>L: Serve verified JSON pack immediately (0 network calls, 0 LLM calls)
+  else First fetch of language pack while online
+    SW->>S: GET /packs/{lang}.json (or /v1/lesson-packs/{lang})
+    S-->>SW: 200 OK (Cache-Control + ETag)
+    SW->>SW: Store in stepstack-packs-v1 + IndexedDB packs store
+    SW-->>L: Render localized lessons offline thereafter
   end

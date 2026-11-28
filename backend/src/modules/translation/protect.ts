@@ -1,13 +1,19 @@
 /**
- * Replaces code / Excel syntax with opaque placeholders (⟦0⟧, ⟦1⟧ ...) BEFORE the text goes to the LLM,
- * and restores them afterwards. The model never sees (and so can never mangle) the code.
- * `restore` also reports whether every placeholder survived, so we can detect a bad translation.
+ * Replaces code / Excel syntax with opaque placeholders (⟦0⟧, ⟦1⟧ ...) BEFORE the text goes to a
+ * build-time translator, and restores them afterwards. The translator never sees (and so can never
+ * mangle) formulas, cell references, or Python code.
+ * `restore` reports whether every placeholder survived, and `verifySyntaxLock` verifies compiled
+ * lesson packs keep all protected syntax tokens intact.
  */
 const EXCEL_FUNCS = [
   "SUM", "SUMIF", "SUMIFS", "AVERAGE", "COUNT", "COUNTA", "COUNTIF", "COUNTIFS", "MIN", "MAX", "IF", "IFS",
   "VLOOKUP", "HLOOKUP", "XLOOKUP", "INDEX", "MATCH", "CONCATENATE", "CONCAT", "LEFT", "RIGHT", "MID", "LEN",
   "TRIM", "ROUND", "TODAY", "NOW", "AND", "OR", "NOT", "PIVOTTABLE", "PIVOT",
+  "PMT", "PV", "FV", "RATE", "NPER",
 ];
+
+/** Python keywords / built-in syntax patterns preserved verbatim in coding lessons. */
+const PYTHON_SYNTAX = /\b(?:def\s+[A-Za-z_]\w*\s*\([^)]*\)\s*:|for\s+[A-Za-z_]\w*\s+in\s+range\([^)]*\)\s*:|print\([^)\n]*\))/g;
 
 export interface Protected { text: string; slots: string[] }
 
@@ -33,7 +39,7 @@ export function protect(input: string): Protected {
   s = s.replace(/```[\s\S]*?```/g, hold);                 // fenced code
   s = s.replace(/`[^`\n]+`/g, hold);                      // inline code
 
-  // balanced Excel formulas: =SUM(A1:A5), =VLOOKUP(...)
+  // balanced Excel formulas: =SUM(A1:A5), =VLOOKUP(...), =PMT(...)
   let out = "";
   for (let i = 0; i < s.length; ) {
     if (s[i] === "=") {
@@ -44,10 +50,13 @@ export function protect(input: string): Protected {
   }
   s = out;
 
-  // ranges / cell refs (A1, $B$2, A1:B10) and bare function names in prose (VLOOKUP)
+  // Python inline statements in prose (e.g. "for i in range(...):", "print(...)")
+  s = s.replace(PYTHON_SYNTAX, hold);
+
+  // ranges / cell refs (A1, $B$2, A1:B10) and bare function names in prose (VLOOKUP, SUM, PMT)
   s = s.replace(/\b\$?[A-Z]{1,3}\$?\d{1,7}(?::\$?[A-Z]{1,3}\$?\d{1,7})?\b/g, hold);
   s = s.replace(new RegExp(`\\b(?:${EXCEL_FUNCS.join("|")})\\b(?=\\s*\\()`, "g"), hold);
-  s = s.replace(/\b(?:VLOOKUP|HLOOKUP|XLOOKUP|SUMIFS?|COUNTIFS?|PivotTable)\b/g, hold);
+  s = s.replace(/\b(?:VLOOKUP|HLOOKUP|XLOOKUP|SUMIFS?|COUNTIFS?|PivotTable|SUM|AVERAGE|PMT|ROUND)\b/g, hold);
   return { text: s, slots };
 }
 
@@ -60,4 +69,33 @@ export function restore(text: string, slots: string[]): { text: string; intact: 
   });
   const intact = seen.every((count) => count === 1) && !/⟦|⟧/.test(restored);
   return { text: restored, intact };
+}
+
+export interface SyntaxLockCheck {
+  ok: boolean;
+  missing: string[];
+  protectedTokens: string[];
+}
+
+/**
+ * Verifies that every syntax-locked token (Excel formulas, cell refs, code blocks, Python syntax)
+ * extracted from the English master string survived verbatim in the translated string, and that
+ * no unexpanded placeholder markers remain.
+ */
+export function verifySyntaxLock(source: string, translated: string): SyntaxLockCheck {
+  const { slots } = protect(source);
+  const missing: string[] = [];
+  for (const token of slots) {
+    // Allow localised placeholder words inside example shapes like =SUM(first:last) only if the formula prefix survives
+    if (translated.includes(token)) continue;
+    const shapeMatch = /^(=[A-Z]+\()[^)]+(\))$/i.exec(token);
+    if (shapeMatch && !/\d/.test(token)) {
+      const prefix = shapeMatch[1]!;
+      if (translated.includes(prefix)) continue;
+    }
+    missing.push(token);
+  }
+  const hasStrayPlaceholders = /⟦|⟧/.test(translated);
+  if (hasStrayPlaceholders) missing.push("UNRESTORED_PLACEHOLDER");
+  return { ok: missing.length === 0, missing, protectedTokens: slots };
 }

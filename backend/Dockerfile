@@ -12,6 +12,7 @@ COPY package*.json ./
 RUN npm ci --omit=dev
 COPY --from=build /app/dist ./dist
 COPY exercises ./exercises
+COPY lesson-packs ./lesson-packs
 COPY sandbox ./sandbox
 COPY migrations ./migrations
 USER node

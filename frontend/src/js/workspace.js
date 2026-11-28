@@ -1,5 +1,5 @@
-import { PATHWAYS } from './config.js';
-import { gradeExercise, translateText } from './grading.js';
+import { PATHWAYS, SUPPORTED_LANGUAGES } from './config.js';
+import { gradeExercise, loadLessonPack } from './grading.js';
 import { TYPING_STAGES, canPlayStage, newTypingProgress, normalizeTypingProgress, recordTypingAttempt } from './typing-game.js';
 
 const $ = (id) => document.getElementById(id);
@@ -13,7 +13,8 @@ let typingStageSelect = null;
 
 const PRACTICE = {
   workplace: { index: 2, kind: 'excel', id: 'w1' },
-  developer: { index: 4, kind: 'python', id: 'd1' }
+  developer: { index: 4, kind: 'python', id: 'd1' },
+  finance: { index: 0, kind: 'excel', id: 'fin1' }
 };
 const PRACTICE_COPY = {
   workplace: {
@@ -23,6 +24,10 @@ const PRACTICE_COPY = {
   developer: {
     prompt: 'Write sum_even(numbers) to return the sum of all even numbers in a list.',
     hint: 'Use a loop or a sum expression; empty lists should return 0.'
+  },
+  finance: {
+    prompt: 'Household income (R14 500) is in B2; expenses are in B3:B7. Enter JSON {"B8":"=SUM(B3:B7)","B9":"=B2-B8"}.',
+    hint: 'Use =SUM(B3:B7) in B8 and =B2-B8 in B9.'
   }
 };
 
@@ -216,12 +221,16 @@ async function gradeCurrentAnswer() {
     const elapsed = Math.max(1000, Date.now() - startedAt);
     const stageNumber = Number(typingStageSelect?.value);
     const stage = typingGameActive ? TYPING_STAGES[stageNumber - 1] : null;
+    let answer = $('practiceAnswer').value;
+    if (!typingGameActive && (activeExercise.kind === 'form' || activeExercise.id === 'fin1') && answer.trim().startsWith('{')) {
+      try { answer = JSON.parse(answer); } catch (error) { /* pass string through */ }
+    }
     const result = typingGameActive ? await gradeExercise(
-      'typing', stage.id, $('practiceAnswer').value, elapsed, stage
+      'typing', stage.id, answer, elapsed, stage
     ) : await gradeExercise(
       activeExercise.kind,
       activeExercise.id,
-      $('practiceAnswer').value,
+      answer,
       elapsed
     );
     if (typingGameActive) {
@@ -253,7 +262,7 @@ async function gradeCurrentAnswer() {
       return;
     }
     $('practiceFeedback').textContent = result.feedback || (
-      result.passed ? 'Correct! Well done.' : result.source === 'server' ? 'Not quite. Try again.' : 'Not quite. Try again.'
+      result.passed ? 'Correct! Well done.' : 'Not quite. Try again.'
     );
     $('practiceFeedback').dataset.state = result.passed ? 'ok' : 'bad';
   } catch (error) {
@@ -265,12 +274,17 @@ async function gradeCurrentAnswer() {
 }
 
 export async function translateCurrent(language) {
-  if (!activeExercise || !['zu', 'xh', 'st', 'tn', 'af'].includes(language)) return;
+  if (!activeExercise || !SUPPORTED_LANGUAGES.includes(language)) return;
   try {
-    const translated = await translateText(activeExercise.prompt, language);
-    if (!translated.queued) $('practicePrompt').textContent = translated.translation;
+    const pack = await loadLessonPack(language);
+    const lesson = pack?.lessons?.[activeExercise.id];
+    if (lesson) {
+      $('practiceTitle').textContent = lesson.title;
+      $('practicePrompt').textContent = lesson.body;
+      $('practiceHint').textContent = lesson.hint;
+    }
   } catch (error) {
-    $('practiceFeedback').textContent = 'Translation is unavailable right now; the original lesson is still available.';
+    $('practiceFeedback').textContent = 'Offline lesson pack unavailable; showing default lesson.';
   }
 }
 
