@@ -1,0 +1,126 @@
+{
+  "version": "v2.1.0",
+  "language": "xh",
+  "languageName": "isiXhosa",
+  "generatedAt": "2026-11-28T00:00:00.000Z",
+  "contentHash": "c23aa3b6ce610ba0",
+  "lessons": {
+    "f1": {
+      "id": "f1",
+      "pathway": "foundational",
+      "title": "[isiXhosa] Copy shortcut",
+      "body": "[isiXhosa] On a Windows computer, type the keyboard shortcut that copies selected text.",
+      "hint": "[isiXhosa] Think of the first letter of \"copy\". Format: ctrl+?",
+      "syntaxLocked": true,
+      "translationStatus": "fallback-compiled"
+    },
+    "f2": {
+      "id": "f2",
+      "pathway": "foundational",
+      "title": "[isiXhosa] Save a work document",
+      "body": "[isiXhosa] You typed a leave request in Microsoft Word. Type the full file name to save it: use the name leave-request and add the Word document extension, including the dot.",
+      "hint": "[isiXhosa] The extension comes after the name and starts with a dot. Format: leave-request.????",
+      "syntaxLocked": true,
+      "translationStatus": "fallback-compiled"
+    },
+    "f3": {
+      "id": "f3",
+      "pathway": "foundational",
+      "title": "[isiXhosa] Email a leave request",
+      "body": "[isiXhosa] Write a formal email asking your manager for leave from 7 to 11 December 2026. Include a subject line, a greeting, the dates, a reason, who will cover your work and a polite sign-off. Write at least 20 characters.",
+      "hint": "[isiXhosa] Start with a clear subject line, then use short sentences.",
+      "syntaxLocked": true,
+      "translationStatus": "fallback-compiled"
+    },
+    "w1": {
+      "id": "w1",
+      "pathway": "workplace",
+      "title": "[isiXhosa] Add with SUM",
+      "body": "[isiXhosa] Type an Excel formula that uses SUM to add cells A1 to A5.",
+      "hint": "[isiXhosa] Start with an equals sign. Format: =SUM(first:last)",
+      "syntaxLocked": true,
+      "translationStatus": "fallback-compiled"
+    },
+    "w2": {
+      "id": "w2",
+      "pathway": "workplace",
+      "title": "[isiXhosa] Report average sales",
+      "body": "[isiXhosa] Your manager wants to know the average sale. The sales amounts are in cells B2 to B10. Type the formula that calculates the average.",
+      "hint": "[isiXhosa] Use the Excel function for an average, and give it the first and last cell.",
+      "syntaxLocked": true,
+      "translationStatus": "fallback-compiled"
+    },
+    "w3": {
+      "id": "w3",
+      "pathway": "workplace",
+      "title": "[isiXhosa] Plan a shop budget",
+      "body": "[isiXhosa] A shop's income (R20 000) is in B2. Expenses are in B3 to B6: rent R6 000, stock R7 000, electricity R1 500, transport R2 000. Write formulas for total expenses in B7 and money left in B8. Explain how to warn when expenses exceed income, and suggest one chart. Write at least 20 characters.",
+      "hint": "[isiXhosa] Think about SUM, subtraction and IF.",
+      "syntaxLocked": true,
+      "translationStatus": "fallback-compiled"
+    },
+    "d1": {
+      "id": "d1",
+      "pathway": "developer",
+      "title": "[isiXhosa] Print a greeting",
+      "body": "[isiXhosa] Type the Python code that prints the word Hello. Use a capital H.",
+      "hint": "[isiXhosa] Use the print function with text inside quotation marks.",
+      "syntaxLocked": true,
+      "translationStatus": "fallback-compiled"
+    },
+    "d2": {
+      "id": "d2",
+      "pathway": "developer",
+      "title": "[isiXhosa] Repeat a reminder",
+      "body": "[isiXhosa] A script must send 5 reminders. Write the first line of a for loop that repeats 5 times, using the variable i and range.",
+      "hint": "[isiXhosa] Format: for i in range(...): Remember the colon at the end.",
+      "syntaxLocked": true,
+      "translationStatus": "fallback-compiled"
+    },
+    "d3": {
+      "id": "d3",
+      "pathway": "developer",
+      "title": "[isiXhosa] Count who passed",
+      "body": "[isiXhosa] A training centre has these marks: marks = [72, 45, 88, 39]. Write Python code that counts how many marks are 50 or higher, then prints the count. Use a loop and an if statement. Write at least 20 characters.",
+      "hint": "[isiXhosa] Start a counter at 0 and add 1 for each pass.",
+      "syntaxLocked": true,
+      "translationStatus": "fallback-compiled"
+    },
+    "fin1": {
+      "id": "fin1",
+      "pathway": "finance",
+      "title": "[isiXhosa] Household monthly budget (Rand)",
+      "body": "[isiXhosa] A household's monthly take-home pay (R14 500) is in B2. Monthly expenses are in B3:B7: rent R4 500, groceries R3 200, electricity R1 400, transport R1 800, data R600. Enter =SUM(B3:B7) in B8 for total expenses and =B2-B8 in B9 for the remaining monthly balance.",
+      "hint": "[isiXhosa] Use =SUM(B3:B7) in B8, then subtract B8 from income in B2.",
+      "syntaxLocked": true,
+      "translationStatus": "fallback-compiled"
+    },
+    "fin2": {
+      "id": "fin2",
+      "pathway": "finance",
+      "title": "[isiXhosa] Microloan simple interest & total repayment",
+      "body": "[isiXhosa] A personal loan of R10 000 is in B2, the annual interest rate (0.18 for 18%) is in B3, and the term in years (2) is in B4. Enter a formula in B5 to calculate total simple interest (=B2*B3*B4) and in B6 for total repayment (=B2+B5).",
+      "hint": "[isiXhosa] Multiply principal B2 by rate B3 and years B4 in B5, then add B2 and B5 in B6.",
+      "syntaxLocked": true,
+      "translationStatus": "fallback-compiled"
+    },
+    "fin3": {
+      "id": "fin3",
+      "pathway": "finance",
+      "title": "[isiXhosa] Safe Offline SARS eFiling: Registration Check",
+      "body": "[isiXhosa] Practice SARS eFiling registration safely offline without touching a live government portal. Enter a 10-digit training tax reference number (e.g. 0123456789), a 13-digit training SA ID number (e.g. 9901015009087), choose Individual as taxpayer type, and confirm the never-share security rule.",
+      "hint": "[isiXhosa] Use fictional training numbers only. A SARS tax number has 10 digits starting with 0, 1, 2, 3, or 9.",
+      "syntaxLocked": true,
+      "translationStatus": "fallback-compiled"
+    },
+    "fin4": {
+      "id": "fin4",
+      "pathway": "finance",
+      "title": "[isiXhosa] Safe Offline SARS eFiling: IRP5 & ITR12 Return Basics",
+      "body": "[isiXhosa] Offline simulation: read the sample 2026 IRP5 certificate and enter the matching SARS source codes into your practice ITR12 form. Code 3601 (Gross Salary): R180 000; Code 4102 (PAYE Deducted): R14 500; Code 4005 (Medical Scheme Contributions): R18 000. Confirm the declaration to submit offline.",
+      "hint": "[isiXhosa] Match each SARS code carefully: 3601 = Gross Salary (180000), 4102 = PAYE (14500), 4005 = Medical (18000).",
+      "syntaxLocked": true,
+      "translationStatus": "fallback-compiled"
+    }
+  }
+}

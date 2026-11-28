@@ -1,0 +1,72 @@
+{
+  "version": "v2.1.0",
+  "generatedAt": "2026-11-28T00:00:00.000Z",
+  "languages": {
+    "en": {
+      "name": "English",
+      "file": "en.json",
+      "lessonCount": 13,
+      "contentHash": "d40f9fa8aec16bd3"
+    },
+    "zu": {
+      "name": "isiZulu",
+      "file": "zu.json",
+      "lessonCount": 13,
+      "contentHash": "881085b33d395346"
+    },
+    "xh": {
+      "name": "isiXhosa",
+      "file": "xh.json",
+      "lessonCount": 13,
+      "contentHash": "c23aa3b6ce610ba0"
+    },
+    "af": {
+      "name": "Afrikaans",
+      "file": "af.json",
+      "lessonCount": 13,
+      "contentHash": "a2c7f6c890ca442f"
+    },
+    "nso": {
+      "name": "Sepedi",
+      "file": "nso.json",
+      "lessonCount": 13,
+      "contentHash": "4787544fa7b1e3fa"
+    },
+    "tn": {
+      "name": "Setswana",
+      "file": "tn.json",
+      "lessonCount": 13,
+      "contentHash": "ca689a76b5a0348e"
+    },
+    "st": {
+      "name": "Sesotho",
+      "file": "st.json",
+      "lessonCount": 13,
+      "contentHash": "5c8b6bd56604a14c"
+    },
+    "ts": {
+      "name": "Xitsonga",
+      "file": "ts.json",
+      "lessonCount": 13,
+      "contentHash": "d18d6377990d22e7"
+    },
+    "ss": {
+      "name": "siSwati",
+      "file": "ss.json",
+      "lessonCount": 13,
+      "contentHash": "dbd8df2ff0827dad"
+    },
+    "ve": {
+      "name": "Tshivenda",
+      "file": "ve.json",
+      "lessonCount": 13,
+      "contentHash": "4a3e960db4da52aa"
+    },
+    "nr": {
+      "name": "isiNdebele",
+      "file": "nr.json",
+      "lessonCount": 13,
+      "contentHash": "381ae4989ddf21d1"
+    }
+  }
+}

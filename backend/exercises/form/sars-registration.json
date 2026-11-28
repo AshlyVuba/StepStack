@@ -1,0 +1,42 @@
+{
+  "id": "sars-registration",
+  "title": "Safe Offline SARS eFiling Simulation: Tax Registration & Profile Check",
+  "category": "sars-efiling",
+  "simulationNotice": "OFFLINE TRAINING SIMULATION ONLY. Never enter real SARS credentials or personal ID numbers here.",
+  "fields": [
+    {
+      "id": "taxReferenceNumber",
+      "label": "SARS Tax Reference Number (10 digits)",
+      "type": "string",
+      "required": true,
+      "pattern": "^[01239]\\d{9}$",
+      "hint": "Enter a 10-digit training tax number starting with 0, 1, 2, 3, or 9 (e.g. 0123456789)."
+    },
+    {
+      "id": "idNumber",
+      "label": "South African ID Number (13 digits, training sample)",
+      "type": "string",
+      "required": true,
+      "pattern": "^\\d{13}$",
+      "hint": "Enter a 13-digit training ID number with no spaces (e.g. 9901015009087)."
+    },
+    {
+      "id": "taxpayerType",
+      "label": "Taxpayer Type",
+      "type": "enum",
+      "required": true,
+      "options": ["Individual", "Company", "Trust"],
+      "expected": "Individual",
+      "hint": "Select 'Individual' for a personal salary taxpayer."
+    },
+    {
+      "id": "passwordSafety",
+      "label": "eFiling Security Rule",
+      "type": "enum",
+      "required": true,
+      "options": ["never-share", "share-with-agent", "post-online"],
+      "expected": "never-share",
+      "hint": "Never share your eFiling password or One-Time PIN (OTP) with anyone."
+    }
+  ]
+}

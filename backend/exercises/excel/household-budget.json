@@ -1,0 +1,17 @@
+{
+  "id": "household-budget",
+  "title": "Household monthly budget (ZAR): total expenses in B8 (=SUM(B3:B7)) and remaining balance in B9 (=B2-B8)",
+  "answerCells": ["B8", "B9"],
+  "allowedFunctions": ["SUM", "ROUND", "MAX", "MIN", "IF"],
+  "requiredFunctions": ["SUM"],
+  "cases": [
+    {
+      "cells": { "B2": 14500, "B3": 4500, "B4": 3200, "B5": 1400, "B6": 1800, "B7": 600 },
+      "expected": { "B8": 11500, "B9": 3000 }
+    },
+    {
+      "cells": { "B2": 18000, "B3": 5500, "B4": 4000, "B5": 1600, "B6": 2100, "B7": 800 },
+      "expected": { "B8": 14000, "B9": 4000 }
+    }
+  ]
+}

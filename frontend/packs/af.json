@@ -1,0 +1,126 @@
+{
+  "version": "v2.1.0",
+  "language": "af",
+  "languageName": "Afrikaans",
+  "generatedAt": "2026-11-28T00:00:00.000Z",
+  "contentHash": "a2c7f6c890ca442f",
+  "lessons": {
+    "f1": {
+      "id": "f1",
+      "pathway": "foundational",
+      "title": "Kopieer-kortpad",
+      "body": "Tik die sleutelbordkortpad wat gekose teks op ’n Windows-rekenaar kopieer.",
+      "hint": "Dink aan die eerste letter van \"copy\". Formaat: ctrl+?",
+      "syntaxLocked": true,
+      "translationStatus": "needs-fluent-review"
+    },
+    "f2": {
+      "id": "f2",
+      "pathway": "foundational",
+      "title": "Stoor ’n werkdokument",
+      "body": "Jy het ’n verlofaansoek in Microsoft Word getik. Tik die volledige lêernaam om dit te stoor: gebruik die naam leave-request en voeg die Word-dokument se lêeruitbreiding by, insluitend die punt.",
+      "hint": "Die uitbreiding kom ná die naam en begin met ’n punt. Formaat: leave-request.????",
+      "syntaxLocked": true,
+      "translationStatus": "needs-fluent-review"
+    },
+    "f3": {
+      "id": "f3",
+      "pathway": "foundational",
+      "title": "E-pos ’n verlofaansoek",
+      "body": "Skryf ’n formele e-pos waarin jy jou bestuurder vir verlof van 7 tot 11 Desember 2026 vra. Sluit ’n onderwerpreël, ’n aanhef, die datums, ’n rede, wie jou werk sal waarneem en ’n beleefde afsluiting in. Skryf minstens 20 karakters.",
+      "hint": "Begin met ’n duidelike onderwerpreël en gebruik dan kort sinne.",
+      "syntaxLocked": true,
+      "translationStatus": "needs-fluent-review"
+    },
+    "w1": {
+      "id": "w1",
+      "pathway": "workplace",
+      "title": "Tel op met SUM",
+      "body": "Tik ’n Excel-formule wat SUM gebruik om selle A1 tot A5 bymekaar te tel.",
+      "hint": "Begin met ’n gelykaanteken. Formaat: =SUM(eerste:laaste)",
+      "syntaxLocked": true,
+      "translationStatus": "needs-fluent-review"
+    },
+    "w2": {
+      "id": "w2",
+      "pathway": "workplace",
+      "title": "Rapporteer gemiddelde verkope",
+      "body": "Jou bestuurder wil weet wat die gemiddelde verkoop is. Die verkoopsbedrae is in selle B2 tot B10. Tik die formule wat die gemiddelde bereken.",
+      "hint": "Gebruik die Excel-funksie vir ’n gemiddelde en gee vir dit die eerste en laaste sel.",
+      "syntaxLocked": true,
+      "translationStatus": "needs-fluent-review"
+    },
+    "w3": {
+      "id": "w3",
+      "pathway": "workplace",
+      "title": "Beplan ’n winkelbegroting",
+      "body": "’n Winkel se inkomste (R20 000) is in B2. Uitgawes is in B3 tot B6: huur R6 000, voorraad R7 000, elektrisiteit R1 500, vervoer R2 000. Skryf formules vir die totale uitgawes in B7 en die oorblywende geld in B8. Verduidelik hoe om te waarsku wanneer uitgawes die inkomste oorskry, en stel een grafiek voor. Skryf minstens 20 karakters.",
+      "hint": "Dink aan SUM, aftrekking en IF.",
+      "syntaxLocked": true,
+      "translationStatus": "needs-fluent-review"
+    },
+    "d1": {
+      "id": "d1",
+      "pathway": "developer",
+      "title": "Vertoon ’n groet",
+      "body": "Tik die Python-kode wat die woord Hello vertoon. Gebruik ’n hoofletter H.",
+      "hint": "Gebruik die print-funksie met teks tussen aanhalingstekens.",
+      "syntaxLocked": true,
+      "translationStatus": "needs-fluent-review"
+    },
+    "d2": {
+      "id": "d2",
+      "pathway": "developer",
+      "title": "Herhaal ’n herinnering",
+      "body": "’n Skrip moet 5 herinnerings stuur. Skryf die eerste reël van ’n for-lus wat 5 keer herhaal, met die veranderlike i en range.",
+      "hint": "Formaat: for i in range(...): Onthou die dubbelpunt aan die einde.",
+      "syntaxLocked": true,
+      "translationStatus": "needs-fluent-review"
+    },
+    "d3": {
+      "id": "d3",
+      "pathway": "developer",
+      "title": "Tel wie geslaag het",
+      "body": "’n Opleidingsentrum het hierdie punte: marks = [72, 45, 88, 39]. Skryf Python-kode wat tel hoeveel punte 50 of hoër is en dan die getal vertoon. Gebruik ’n lus en ’n if-stelling. Skryf minstens 20 karakters.",
+      "hint": "Begin ’n teller by 0 en tel 1 by vir elke slaagpunt.",
+      "syntaxLocked": true,
+      "translationStatus": "needs-fluent-review"
+    },
+    "fin1": {
+      "id": "fin1",
+      "pathway": "finance",
+      "title": "Huishoudelike maandelikse begroting (Rand)",
+      "body": "’n Huishouding se maandelikse netto inkomste (R14 500) is in B2. Maandelikse uitgawes is in B3:B7: huur R4 500, kruideniersware R3 200, elektrisiteit R1 400, vervoer R1 800, data R600. Tik =SUM(B3:B7) in B8 vir totale uitgawes en =B2-B8 in B9 vir die oorblywende balans.",
+      "hint": "Gebruik =SUM(B3:B7) in B8 en trek dan B8 van die inkomste in B2 af.",
+      "syntaxLocked": true,
+      "translationStatus": "needs-fluent-review"
+    },
+    "fin2": {
+      "id": "fin2",
+      "pathway": "finance",
+      "title": "Mikrolening enkelvoudige rente en totale terugbetaling",
+      "body": "’n Persoonlike lening van R10 000 is in B2, die jaarlikse rentekoers (0.18 vir 18%) is in B3, en die termyn in jare (2) is in B4. Tik ’n formule in B5 om totale enkelvoudige rente te bereken (=B2*B3*B4) en in B6 vir totale terugbetaling (=B2+B5).",
+      "hint": "Vermenigvuldig hoofsom B2 met koers B3 en jare B4 in B5, en tel dan B2 en B5 in B6 bymekaar.",
+      "syntaxLocked": true,
+      "translationStatus": "needs-fluent-review"
+    },
+    "fin3": {
+      "id": "fin3",
+      "pathway": "finance",
+      "title": "Veilige Vanlyn SARS eFiling: Registrasietoets",
+      "body": "Oefen SARS eFiling-registrasie veilig vanlyn sonder om ’n regte regeringsportaal te raak. Tik ’n 10-syfer oefen-belastingverwysingsnommer (bv. 0123456789), ’n 13-syfer oefen-SA ID-nommer (bv. 9901015009087), kies Individual as belastingbetalertipe, en bevestig die never-share sekuriteitsreël.",
+      "hint": "Gebruik slegs fiktiewe oefennommers. ’n SARS-belastingnommer het 10 syfers wat met 0, 1, 2, 3 of 9 begin.",
+      "syntaxLocked": true,
+      "translationStatus": "needs-fluent-review"
+    },
+    "fin4": {
+      "id": "fin4",
+      "pathway": "finance",
+      "title": "Veilige Vanlyn SARS eFiling: IRP5 & ITR12 Basiese Beginsels",
+      "body": "Vanlyn simulasie: lees die voorbeeld 2026 IRP5-sertifikaat en tik die ooreenstemmende SARS-bronkodes op jou oefen-ITR12-vorm in. Kode 3601 (Bruto Salaris): R180 000; Kode 4102 (LBS Afgetrek): R14 500; Kode 4005 (Mediese Fonds Bydraes): R18 000. Bevestig die verklaring om vanlyn in te dien.",
+      "hint": "Pas elke SARS-kode noukeurig aan: 3601 = 180000, 4102 = 14500, 4005 = 18000.",
+      "syntaxLocked": true,
+      "translationStatus": "needs-fluent-review"
+    }
+  }
+}

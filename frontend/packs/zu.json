@@ -1,0 +1,126 @@
+{
+  "version": "v2.1.0",
+  "language": "zu",
+  "languageName": "isiZulu",
+  "generatedAt": "2026-11-28T00:00:00.000Z",
+  "contentHash": "881085b33d395346",
+  "lessons": {
+    "f1": {
+      "id": "f1",
+      "pathway": "foundational",
+      "title": "Isinqamuleli sokukopisha",
+      "body": "Kukhompyutha ye-Windows, thayipha isinqamuleli sekhibhodi esikopisha umbhalo okhethiwe.",
+      "hint": "Cabanga ngohlamvu lokuqala lwegama elithi \"copy\". Isimo: ctrl+?",
+      "syntaxLocked": true,
+      "translationStatus": "needs-fluent-review"
+    },
+    "f2": {
+      "id": "f2",
+      "pathway": "foundational",
+      "title": "Londoloza idokhumenti yomsebenzi",
+      "body": "Ubhale isicelo sekhefu ku-Microsoft Word. Thayipha igama eliphelele lefayela ozolilondoloza ngalo: sebenzisa igama elithi leave-request, bese ufaka isandiso sedokhumenti ye-Word, kanye nechashazi.",
+      "hint": "Isandiso siza ngemva kwegama futhi siqala ngechashazi. Isimo: leave-request.????",
+      "syntaxLocked": true,
+      "translationStatus": "needs-fluent-review"
+    },
+    "f3": {
+      "id": "f3",
+      "pathway": "foundational",
+      "title": "Thumela isicelo sekhefu nge-imeyili",
+      "body": "Bhala i-imeyili esemthethweni ucela umphathi wakho ikhefu kusuka mhla zi-7 kuya mhla zi-11 kuZibandlela 2026. Faka isihloko, ukubingelela, izinsuku, isizathu, ozokwenza umsebenzi wakho ungekho, nokuvalelisa ngenhlonipho. Bhala okungenani izinhlamvu eziyi-20.",
+      "hint": "Qala ngesihloko esicacile, bese ubhala imisho emifushane.",
+      "syntaxLocked": true,
+      "translationStatus": "needs-fluent-review"
+    },
+    "w1": {
+      "id": "w1",
+      "pathway": "workplace",
+      "title": "Hlanganisa nge-SUM",
+      "body": "Thayipha ifomula ye-Excel esebenzisa i-SUM ukuhlanganisa amangqamuzana kusuka ku-A1 kuya ku-A5.",
+      "hint": "Qala ngophawu olulinganayo. Isimo: =SUM(elokuqala:elokugcina)",
+      "syntaxLocked": true,
+      "translationStatus": "needs-fluent-review"
+    },
+    "w2": {
+      "id": "w2",
+      "pathway": "workplace",
+      "title": "Bika isilinganiso sokuthengisa",
+      "body": "Umphathi wakho ufuna ukwazi isilinganiso sokuthengisa. Amanani okuthengisa akumangqamuzana B2 kuya ku-B10. Thayipha ifomula ekhipha isilinganiso.",
+      "hint": "Sebenzisa umsebenzi we-Excel wesilinganiso, uwunike ingqamuzana lokuqala nelokugcina.",
+      "syntaxLocked": true,
+      "translationStatus": "needs-fluent-review"
+    },
+    "w3": {
+      "id": "w3",
+      "pathway": "workplace",
+      "title": "Hlela isabelomali sesitolo",
+      "body": "Imali engenayo yesitolo (R20 000) iku-B2. Izindleko ziku-B3 kuya ku-B6: irenti R6 000, isitoko R7 000, ugesi R1 500, ezokuthutha R2 000. Bhala ifomula yazo zonke izindleko ku-B7 neyemali esele ku-B8. Chaza ukuthi ungaxwayisa kanjani uma izindleko zidlula imali engenayo, bese uphakamisa ishadi elilodwa. Bhala okungenani izinhlamvu eziyi-20.",
+      "hint": "Cabanga nge-SUM, ukususa kanye ne-IF.",
+      "syntaxLocked": true,
+      "translationStatus": "needs-fluent-review"
+    },
+    "d1": {
+      "id": "d1",
+      "pathway": "developer",
+      "title": "Phrinta isibingelelo",
+      "body": "Thayipha ikhodi ye-Python ephrinta igama elithi Hello. Sebenzisa usonhlamvukazi H.",
+      "hint": "Sebenzisa umsebenzi we-print nombhalo ophakathi kwezicaphuno.",
+      "syntaxLocked": true,
+      "translationStatus": "needs-fluent-review"
+    },
+    "d2": {
+      "id": "d2",
+      "pathway": "developer",
+      "title": "Phinda isikhumbuzo",
+      "body": "Isikripthi kumele sithumele izikhumbuzo ezi-5. Bhala umugqa wokuqala we-loop ye-for ephindaphinda izikhathi ezi-5, usebenzisa i-variable i kanye ne-range.",
+      "hint": "Isimo: for i in range(...): Ungakhohlwa ikholoni ekugcineni.",
+      "syntaxLocked": true,
+      "translationStatus": "needs-fluent-review"
+    },
+    "d3": {
+      "id": "d3",
+      "pathway": "developer",
+      "title": "Bala abaphumelele",
+      "body": "Isikhungo sokuqeqesha sinala mamaki: marks = [72, 45, 88, 39]. Bhala ikhodi ye-Python ebala ukuthi mangaki amamaki angu-50 noma ngaphezulu, bese iphrinta lelo nani. Sebenzisa i-loop nesitatimende se-if. Bhala okungenani izinhlamvu eziyi-20.",
+      "hint": "Qala isibali ku-0, bese ungeza u-1 kulowo nalowo ophumelele.",
+      "syntaxLocked": true,
+      "translationStatus": "needs-fluent-review"
+    },
+    "fin1": {
+      "id": "fin1",
+      "pathway": "finance",
+      "title": "Isabelomali sanyanga zonke sasekhaya (Rand)",
+      "body": "Umholo wanyanga zonke wasekhaya (R14 500) uku-B2. Izindleko zanyanga zonke ziku-B3:B7: irenti R4 500, ukudla R3 200, ugesi R1 400, ezokuthutha R1 800, idatha R600. Faka u-=SUM(B3:B7) ku-B8 wezindleko eziphelele no-=B2-B8 ku-B9 wemali esele.",
+      "hint": "Sebenzisa u-=SUM(B3:B7) ku-B8, bese ususa u-B8 emholweni oku-B2.",
+      "syntaxLocked": true,
+      "translationStatus": "needs-fluent-review"
+    },
+    "fin2": {
+      "id": "fin2",
+      "pathway": "finance",
+      "title": "Inzalo yemalimboleko encane kanye nokukhokha konke",
+      "body": "Imalimboleko yomuntu siqu engu-R10 000 iku-B2, izinga lenzalo lonyaka (0.18 elingu-18%) liku-B3, kanti isikhathi seminyaka (2) siku-B4. Faka ifomula ku-B5 ukubala inzalo elula (=B2*B3*B4) nakwi-B6 ukubala inani eliphelele lokukhokha (=B2+B5).",
+      "hint": "Phindaphinda u-B2 ngo-B3 nango-B4 ku-B5, bese uhlanganisa u-B2 no-B5 ku-B6.",
+      "syntaxLocked": true,
+      "translationStatus": "needs-fluent-review"
+    },
+    "fin3": {
+      "id": "fin3",
+      "pathway": "finance",
+      "title": "Ukuzilolongela i-SARS eFiling Ungaxhumekile: Ukubhalisa",
+      "body": "Zilolonge ukubhalisela i-SARS eFiling ngokuphepha ungaxhumekile ku-inthanethi ngaphandle kokuthinta ingosi kahulumeni. Faka inombolo yentela yokuzilolonga enamadijithi ayi-10 (isb. 0123456789), inombolo ye-SA ID yokuzilolonga enamadijithi ayi-13 (isb. 9901015009087), khetha u-Individual, bese uqinisekisa umthetho wokuphepha othi never-share.",
+      "hint": "Sebenzisa izinombolo zokuzilolonga kuphela. Inombolo yentela ye-SARS inamadijithi ayi-10 aqala ngo-0, 1, 2, 3, noma 9.",
+      "syntaxLocked": true,
+      "translationStatus": "needs-fluent-review"
+    },
+    "fin4": {
+      "id": "fin4",
+      "pathway": "finance",
+      "title": "Ukuzilolongela i-SARS eFiling Ungaxhumekile: I-IRP5 ne-ITR12",
+      "body": "Ukulingisa okungaxhumekile ku-inthanethi: funda isitifiketi sesampula se-IRP5 sango-2026 bese ufaka amakhodi e-SARS afanele efomini lakho le-ITR12. Ikhodi 3601 (Umholo Ophelele): R180 000; Ikhodi 4102 (Intela ye-PAYE): R14 500; Ikhodi 4005 (Imali Yezokwelapha): R18 000. Qinisekisa isifungo ukuze uthumele ungaxhumekile.",
+      "hint": "Qondanisa ikhodi ngayinye ye-SARS ngokucophelela: 3601 = 180000, 4102 = 14500, 4005 = 18000.",
+      "syntaxLocked": true,
+      "translationStatus": "needs-fluent-review"
+    }
+  }
+}

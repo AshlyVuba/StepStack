@@ -1,0 +1,17 @@
+{
+  "id": "loan-interest",
+  "title": "Microloan simple interest (ZAR): principal in B2, annual rate in B3, years in B4. Total interest in B5 and total repayment in B6.",
+  "answerCells": ["B5", "B6"],
+  "allowedFunctions": ["ROUND", "SUM"],
+  "requiredFunctions": [],
+  "cases": [
+    {
+      "cells": { "B2": 10000, "B3": 0.18, "B4": 2 },
+      "expected": { "B5": 3600, "B6": 13600 }
+    },
+    {
+      "cells": { "B2": 25000, "B3": 0.12, "B4": 3 },
+      "expected": { "B5": 9000, "B6": 34000 }
+    }
+  ]
+}

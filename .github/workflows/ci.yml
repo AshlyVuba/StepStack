@@ -20,6 +20,8 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - name: Install dev dependencies (tests only; nothing ships to users)
         run: npm ci
+      - name: Build production frontend bundle
+        run: npm run build
       - name: JS syntax check
         run: npm run check:syntax
       - name: Guardrails (no third-party libs, HTML injection or unencrypted storage)
@@ -47,6 +49,8 @@ jobs:
           cache: npm
           cache-dependency-path: backend/package-lock.json
       - run: npm ci
+      - name: Build and syntax-verify 11-language offline lesson packs
+        run: npm run build:packs
       - name: Typecheck
         run: npm run typecheck
       - name: Tests (boots real Pyodide sandboxes, about 2 minutes)

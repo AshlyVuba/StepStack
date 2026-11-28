@@ -1,0 +1,48 @@
+{
+  "id": "sars-irp5-itr12",
+  "title": "Safe Offline SARS eFiling Simulation: IRP5 Source Codes & ITR12 Basics",
+  "category": "sars-efiling",
+  "simulationNotice": "OFFLINE TRAINING SIMULATION ONLY. Uses a fictional IRP5 certificate and never connects to SARS.",
+  "fields": [
+    {
+      "id": "taxYear",
+      "label": "Tax Assessment Year",
+      "type": "number",
+      "required": true,
+      "expected": 2026,
+      "hint": "Enter the assessment year shown on the sample IRP5 (2026)."
+    },
+    {
+      "id": "code3601",
+      "label": "IRP5 Code 3601 — Gross Salary Income (ZAR)",
+      "type": "number",
+      "required": true,
+      "expected": 180000,
+      "hint": "Copy the gross salary amount for Code 3601 from the sample IRP5 (R180 000)."
+    },
+    {
+      "id": "code4102",
+      "label": "IRP5 Code 4102 — PAYE Tax Deducted (ZAR)",
+      "type": "number",
+      "required": true,
+      "expected": 14500,
+      "hint": "Copy the PAYE tax already deducted under Code 4102 (R14 500)."
+    },
+    {
+      "id": "code4005",
+      "label": "IRP5 Code 4005 — Medical Scheme Contributions (ZAR)",
+      "type": "number",
+      "required": true,
+      "expected": 18000,
+      "hint": "Copy the medical scheme contributions under Code 4005 (R18 000)."
+    },
+    {
+      "id": "declarationConfirmed",
+      "label": "Declaration & Simulation Acknowledgement",
+      "type": "boolean",
+      "required": true,
+      "expected": true,
+      "hint": "Tick the declaration to confirm the figures match the sample IRP5."
+    }
+  ]
+}
