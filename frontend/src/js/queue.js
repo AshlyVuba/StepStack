@@ -1,6 +1,4 @@
-// Offline event queue. Events (like "stage completed") are stored encrypted in
-// IndexedDB and drained when a sync sender is registered and the device is online.
-// No server exists yet: a later sync feature calls setSender(fn).
+// Grading and translation requests are encrypted at rest until the API is reachable.
 import * as vault from './vault.js';
 
 let sender = null;
@@ -9,6 +7,7 @@ export const enqueue = (type, payload) =>
   vault.queueAdd({ type, payload, at: new Date().toISOString() });
 
 export const pending = () => vault.queueList();
+export const remove = (id) => vault.queueRemove(id);
 
 export const setSender = (fn) => { sender = fn; };
 
@@ -18,7 +17,8 @@ export async function flush() {
   let sent = 0;
   for (const item of await pending()) {
     try {
-      await sender(item);
+      const response = await sender(item);
+      if (response && response.ok === false) throw new Error('queued request was rejected');
       await vault.queueRemove(item.id);
       sent += 1;
     } catch (e) {

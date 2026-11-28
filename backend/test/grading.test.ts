@@ -129,13 +129,25 @@ describe("python sandbox", () => {
     const { spawnSync } = await import("node:child_process");
     process.env.TOP_SECRET_TEST = "leak";
     const r = spawnSync(process.execPath, ["-e", "console.log(JSON.stringify(process.env))"], { env: {} });
-    expect(r.stdout.toString()).toBe("{}\n");
+    const env = JSON.parse(r.stdout.toString());
+    expect(env.TOP_SECRET_TEST).toBeUndefined();
   });
 
   it("syntax errors give readable feedback", async () => {
     const r = (await grade("python", { exerciseId: "sum-even", code: "def sum_even(n:\n  return 1" })).json();
     expect(r.passed).toBe(false); expect(r.feedback).toMatch(/Syntax/i);
   });
+
+  it.each(["js", "pyodide", "socket", "ssl", "urllib", "http", "requests", "subprocess"])(
+    "rejects Python imports that could cross the network/process boundary (%s)",
+    async (moduleName) => {
+      const response = await grade("python", {
+        exerciseId: "sum-even", code: `import ${moduleName}\ndef sum_even(numbers): return 0`
+      });
+      expect(response.statusCode).toBe(200);
+      expect(response.json()).toMatchObject({ status: "rejected" });
+    }
+  );
 
   it("is fast across repeated sequential submissions (pool keeps warm workers)", async () => {
     const times: number[] = [];

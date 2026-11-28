@@ -55,16 +55,16 @@ function makeEnv() {
 test('install pre-caches the whole app shell', async () => {
   const env = makeEnv();
   await env.run('install');
-  const cached = [...env.stores.get('stepstack-shell-v1').keys()];
+  const cached = [...env.stores.get('stepstack-shell-v2').keys()];
   assert.equal(cached.length, env.shell.length);
-  assert.ok(cached.includes(abs('./src/js/exercises.js')));
+  assert.ok(cached.includes(abs('./src/js/workspace.js')));
 });
 
 test('OFFLINE: page, scripts and lazy exercise module all load from cache', async () => {
   const env = makeEnv();
   await env.run('install');
   env.setOnline(false);
-  for (const u of ['./', './index.html', './src/js/main.js', './src/js/exercises.js', './src/css/onboarding.css', './manifest.webmanifest']) {
+  for (const u of ['./', './index.html', './src/js/main.js', './src/js/workspace.js', './src/css/app.css', './manifest.webmanifest']) {
     const res = await env.request(u);
     assert.ok(res, u);
     assert.equal((await res).status, 200, u);
@@ -90,14 +90,14 @@ test('OFFLINE: unknown page navigation falls back to the app shell', async () =>
 test('uncached non-navigation request is left to the network: never intercepted, never cached', async () => {
   const env = makeEnv();
   await env.run('install');
-  const cachedBefore = env.stores.get('stepstack-shell-v1').size;
+  const cachedBefore = env.stores.get('stepstack-shell-v2').size;
   env.setOnline(false);
   // The service worker does not call respondWith(), so the browser's own fetch runs and fails offline.
   assert.equal(await env.request('./unknown.json'), undefined);
   env.setOnline(true);
   env.files.set(abs('./unknown.json'), '{"secret":"api response"}');
   assert.equal(await env.request('./unknown.json'), undefined);
-  assert.equal(env.stores.get('stepstack-shell-v1').size, cachedBefore); // nothing outside the shell is stored
+  assert.equal(env.stores.get('stepstack-shell-v2').size, cachedBefore); // nothing outside the shell is stored
 });
 
 test('cache is refreshed in the background when online (updates arrive)', async () => {
@@ -122,11 +122,11 @@ test('ignores non-GET and cross-origin requests', async () => {
 
 test('activate deletes old StepStack caches only', async () => {
   const env = makeEnv();
-  env.stores.set('stepstack-shell-v0', new Map());
+  env.stores.set('stepstack-shell-v1', new Map());
   env.stores.set('someone-elses-cache', new Map());
   await env.run('install');
   await env.run('activate');
-  assert.ok(!env.stores.has('stepstack-shell-v0'));
+  assert.ok(!env.stores.has('stepstack-shell-v1'));
   assert.ok(env.stores.has('someone-elses-cache'));
-  assert.ok(env.stores.has('stepstack-shell-v1'));
+  assert.ok(env.stores.has('stepstack-shell-v2'));
 });

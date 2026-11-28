@@ -4,7 +4,7 @@
   "private": true,
   "description": "Using small steps to improve your tech stack.",
   "scripts": {
-    "check:syntax": "for f in src/js/*.js; do node --check --input-type=module < \"$f\" || exit 1; done",
+    "check:syntax": "node scripts/check-syntax.js",
     "check:size": "node scripts/check-bundle-size.js",
     "check:guardrails": "node scripts/check-guardrails.js",
     "ci": "npm run check:syntax && npm run check:guardrails && npm run check:pwa && npm run check:size && npm test",

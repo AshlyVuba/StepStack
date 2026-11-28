@@ -35,6 +35,11 @@ describe("code protection", () => {
     const p = protect(text);
     expect(restore(p.text.replace("\u27E60\u27E7", ""), p.slots).intact).toBe(false);
   });
+  it("rejects duplicated and unknown placeholders", () => {
+    const p = protect("Use `print('hello')`.");
+    expect(restore(`${p.text} ⟦0⟧`, p.slots).intact).toBe(false);
+    expect(restore(`${p.text} ⟦99⟧`, p.slots).intact).toBe(false);
+  });
 });
 
 describe("translate endpoint", () => {

@@ -1,27 +1,57 @@
-// Static onboarding options. Plain data only: no dependencies.
-export const TIERS = [
-  { id: 'foundational', label: 'Digital basics', hint: 'Typing, files and first steps on a computer' },
-  { id: 'workplace', label: 'Excel & office skills', hint: 'Spreadsheets and everyday workplace tools' },
-  { id: 'developer', label: 'Coding & tech stacks', hint: 'Learn a new language or framework' }
-];
+// API URLs are public configuration; internal service credentials never belong here.
+const configuredApi = typeof document !== 'undefined'
+  ? document.querySelector('meta[name="stepstack-api"]')?.content?.trim()
+  : '';
+const localHost = ['localhost', '127.0.0.1'].includes(globalThis.location?.hostname);
+const defaultApi = globalThis.location?.origin && !globalThis.location.origin.startsWith('file:')
+  ? localHost ? 'http://localhost:3000' : globalThis.location.origin
+  : 'http://localhost:3000';
+const apiUrl = new URL(configuredApi || defaultApi, globalThis.location?.href || 'http://localhost/');
+if (!['http:', 'https:'].includes(apiUrl.protocol) || apiUrl.username || apiUrl.password)
+  throw new Error('API base URL must use HTTP or HTTPS without credentials');
+export const API_BASE = apiUrl.href.replace(/\/$/, '');
+export const translateEndpoint = `${API_BASE}/v1/translate`;
+export const verifyEndpoint = (token) => `${API_BASE}/v1/verify/${encodeURIComponent(token)}`;
 
-export const LEVELS = [
-  { id: 'beginner', label: 'Just starting', hint: 'Little or no experience' },
-  { id: 'intermediate', label: 'Some experience', hint: 'I can do the basics' },
-  { id: 'advanced', label: 'Confident', hint: 'I want harder challenges' }
-];
+export const PATHWAYS = {
+  foundational: {
+    title: 'Typing & Computer Basics', emoji: '⌨️',
+    description: 'Build confidence through typing, mouse skills and essential computer tasks.',
+    lessons: ['Typing foundations', 'Mouse and pointer control', 'Keyboard shortcuts', 'Computer basics', 'Files and folders', 'Internet and browser navigation', 'Digital safety']
+  },
+  workplace: {
+    title: 'Workplace Ready', emoji: '💼',
+    description: 'Develop practical digital skills for jobs, studies and professional life.',
+    lessons: ['Microsoft Office basics', 'Word essentials', 'Excel essentials', 'PowerPoint essentials', 'Professional email', 'Creating a CV', 'Online meetings']
+  },
+  developer: {
+    title: 'Developer Mode', emoji: '💻',
+    description: 'Learn programming logic and create real projects from scratch.',
+    lessons: ['Programming fundamentals', 'HTML', 'CSS', 'JavaScript', 'Python', 'Coding logic', 'Your first project']
+  },
+  upskill: {
+    title: 'Upskill & Training', emoji: '🎓',
+    description: 'Explore short courses, certifications and career-focused training.',
+    lessons: ['Discover your skills', 'Career exploration', 'Short courses', 'Certification options', 'A guided learning plan', 'Practice interviews', 'Next career step']
+  },
+  finance: {
+    title: 'Financial Literacy', emoji: '💰',
+    description: 'Learn to budget, save, understand banking and plan for the future.',
+    lessons: ['Understanding money', 'Budgeting', 'Saving', 'Banking basics', 'Credit and debt', 'Understanding payslips', 'Financial planning']
+  }
+};
 
-// code = BCP 47 tag, native = how speakers write the language name
-export const LANGUAGES = [
-  { code: 'en', native: 'English' },
-  { code: 'zu', native: 'isiZulu' },
-  { code: 'xh', native: 'isiXhosa' },
-  { code: 'af', native: 'Afrikaans' },
-  { code: 'st', native: 'Sesotho' },
-  { code: 'tn', native: 'Setswana' },
-  { code: 'nso', native: 'Sepedi' },
-  { code: 'ts', native: 'Xitsonga' },
-  { code: 've', native: 'Tshivenda' },
-  { code: 'ss', native: 'siSwati' },
-  { code: 'nr', native: 'isiNdebele' }
-];
+// Only these exercises have matching server-side grader definitions.
+export const EXERCISE_MAP = {
+  typing: {
+    'typing-warmup': {
+      exerciseId: 'typing-intro-1',
+      target: 'The quick brown fox jumps over the lazy dog near the river.'
+    }
+  },
+  excel: { w1: { exerciseId: 'sum-basic', answerCell: 'B6' } },
+  python: {
+    d1: { exerciseId: 'sum-even' },
+    d2: { exerciseId: 'count-words' }
+  }
+};

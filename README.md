@@ -18,21 +18,57 @@ It is built as an offline-first PWA with a grading, translation and verified-por
 └── .github/workflows/ci.yml   CI for both projects
 ```
 
-The two projects are independent: each has its own `package.json`, dependencies, tests and README. The frontend does not
-call the backend yet (see "Next steps" in each README).
+The projects have separate dependencies and run processes. The frontend is an offline-first PWA; when the backend is running it also uses the public grading, translation, and portfolio-verification API endpoints.
 
 ## Quick start
 
-```bash
-# Frontend (static files; needs a real web server, not file://)
-cd frontend && npm ci && npm run ci      # run all checks
-python3 -m http.server 8000              # then open http://localhost:8000
+### Frontend only (offline features)
 
-# Backend
-cd backend && cp .env.example .env       # fill in the required secrets
-docker compose up -d postgres redis
-npm install && npm run migrate && npm run dev
+Requires Node.js 22+ and Python 3. From PowerShell:
+
+```powershell
+Set-Location frontend
+npm ci
+npm run ci
+python -m http.server 8080
 ```
+
+Open <http://localhost:8080>. Keep the server running; `file://` will not work. Grading and translation need the backend below; the app can still be explored offline.
+
+### Full app (frontend + API)
+
+Also requires Docker Desktop and an Anthropic API key for translation. In a **second** PowerShell terminal:
+
+```powershell
+Set-Location backend
+Copy-Item .env.example .env
+```
+
+Generate secrets (copy the four output values into `.env`; do not commit that file):
+
+```powershell
+node -e "const c=require('crypto'); console.log('PORTFOLIO_SIGNING_KEY='+c.randomBytes(48).toString('base64')); console.log('INTERNAL_API_KEY='+c.randomBytes(32).toString('hex')); console.log('POSTGRES_PASSWORD='+c.randomBytes(24).toString('hex')); console.log('REDIS_PASSWORD='+c.randomBytes(24).toString('hex'))"
+```
+
+In `.env`, set `DATABASE_URL` to `postgres://skills:<POSTGRES_PASSWORD>@localhost:5432/skills`, `REDIS_URL` to `redis://:<REDIS_PASSWORD>@localhost:6379`, add your `ANTHROPIC_API_KEY`, and set `PUBLIC_BASE_URL=http://localhost:3000` and `FRONTEND_BASE_URL=http://localhost:8080`. Keep the default `CORS_ORIGIN`, which already allows the frontend on port 8080.
+
+Then start the API and databases:
+
+```powershell
+docker compose up -d postgres redis
+npm ci
+npm run migrate
+npm run dev
+```
+
+In the first PowerShell terminal, start the frontend if it is not already running:
+
+```powershell
+Set-Location frontend
+python -m http.server 8080
+```
+
+Open <http://localhost:8080>. Stop the frontend and API with `Ctrl+C`; stop the database containers with `docker compose down` from `backend\`.
 
 ## Continuous integration
 

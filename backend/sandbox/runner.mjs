@@ -6,6 +6,9 @@ import { createInterface } from "node:readline";
 
 const py = await loadPyodide({ stdout() {}, stderr() {} }); // swallow Python output so stdio stays a clean protocol
 py.runPython(readFileSync(new URL("./harness.py", import.meta.url), "utf8"));
+globalThis.fetch = undefined;
+globalThis.WebSocket = undefined;
+globalThis.XMLHttpRequest = undefined;
 const run = py.globals.get("run_submission");
 
 process.stdout.write(JSON.stringify({ ready: true }) + "\n");

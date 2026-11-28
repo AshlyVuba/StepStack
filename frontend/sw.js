@@ -5,18 +5,17 @@
 // - Only same-origin GET requests are handled. Learner data never passes
 //   through here: it lives encrypted in IndexedDB, not in any cache.
 // scripts/check-pwa.js verifies SHELL lists every file the app needs.
-const CACHE = 'stepstack-shell-v1';
+const CACHE = 'stepstack-shell-v2';
 const SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png',
-  './src/css/onboarding.css',
+  './src/css/app.css',
   './src/js/app.js',
   './src/js/config.js',
   './src/js/crypto.js',
-  './src/js/exercises.js',
   './src/js/grading.js',
   './src/js/idb.js',
   './src/js/idle.js',

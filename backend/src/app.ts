@@ -29,10 +29,28 @@ export async function buildApp(d: Deps) {
   const hops = d.config.TRUST_PROXY_HOPS;
   const trustProxy = hops > 0 ? (_address: string, hop: number) => hop < hops : false;
   const app = Fastify({ logger: process.env.NODE_ENV !== "test", bodyLimit: 64 * 1024, trustProxy, routerOptions: { maxParamLength: 512 } });
+  const allowedOrigins = new Set(d.config.CORS_ORIGIN.split(",").map((v) => v.trim()).filter(Boolean));
+  app.addHook("onRequest", async (req, reply) => {
+    if (req.headers.origin && allowedOrigins.has(req.headers.origin))
+      reply.header("Access-Control-Allow-Origin", req.headers.origin);
+    reply.header("Vary", "Origin");
+  });
+  app.options("/*", async (req, reply) => {
+    reply.header("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+    if (req.headers.origin && allowedOrigins.has(req.headers.origin))
+      reply.header("Access-Control-Allow-Headers", "Content-Type");
+    return reply.code(204).send();
+  });
   await app.register(helmet);
   await app.register(rateLimit, { max: d.globalRatePerMin ?? 120, timeWindow: "1 minute" });
 
   app.get("/healthz", async () => ({ ok: true }));
+  app.get("/p/:token", async (req, reply) => {
+    const { token } = req.params as { token: string };
+    const target = new URL(d.config.FRONTEND_BASE_URL);
+    target.searchParams.set("portfolio", token);
+    return reply.code(302).redirect(target.toString());
+  });
 
   portfolioRoutes(app, {
     repo: d.repo, signingKey: d.config.PORTFOLIO_SIGNING_KEY, previousKey: d.config.PORTFOLIO_SIGNING_KEY_PREVIOUS,

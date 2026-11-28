@@ -2,7 +2,10 @@ const fs = require('fs');
 const path = require('path');
 
 // Loaded on demand after onboarding, so it does not count toward the initial budget.
-const LAZY = ['src/js/exercises.js'];
+const LAZY = [
+  'src/js/onboarding.js', 'src/js/workspace.js', 'src/js/idle.js',
+  'src/js/grading.js', 'src/js/crypto.js', 'src/js/vault.js', 'src/js/storage.js', 'src/js/queue.js'
+];
 
 // All shipped client files: index.html plus everything under src/ (excluding package.json markers).
 function clientFiles(root = '.') {

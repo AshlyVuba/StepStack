@@ -10,18 +10,23 @@ One Fastify/TypeScript service, three modules. Node >= 22.
 
 ## Run
 ```bash
-cp .env.example .env        # fill in the required secrets (openssl rand -base64 48)
+Copy-Item .env.example .env  # fill in the required secrets (openssl rand -base64 48)
 docker compose up -d postgres redis
-npm install && npm run migrate && npm run dev
-npm test                    # 31 tests, ~1 min (boots real Pyodide sandboxes)
+npm install
+npm run migrate
+npm run dev
+npm test                    # includes tests using real Pyodide sandboxes
 ```
 
 ### Deployment security settings
 - `POSTGRES_PASSWORD` and `REDIS_PASSWORD` are required by `docker-compose.yml`; both data stores listen on `127.0.0.1` only.
 - `TRUST_PROXY_HOPS` (default `0`): set to the number of reverse proxies in front of the API, otherwise `X-Forwarded-For` is ignored.
+- `CORS_ORIGIN`: comma-separated exact browser origins (no wildcards or paths). `FRONTEND_BASE_URL` is where `/p/:token` redirects; `PUBLIC_BASE_URL` is the API origin used to issue portfolio links.
+- When frontend and API are hosted on different origins, allow the API origin in `frontend/index.html`'s `connect-src` as well as `CORS_ORIGIN`; do not widen the CSP to arbitrary hosts.
+- Browser clients may use public grading, learner translation and verification endpoints only. Do not expose `INTERNAL_API_KEY`; CORS deliberately does not allow the `X-Internal-Key` header.
 - `PORTFOLIO_TTL_DAYS` (default `365`): public links stop verifying after this long (`410 expired`).
 - `GRADING_PYTHON_ENABLED=false`: kill switch for the Python grader (`503`).
-- Still open: the grader process shares the API container's network. Run it as a separate service with no network before production.
+- Python submissions run in single-use Pyodide processes with empty environments, Node `fetch`/WebSocket/XHR disabled, no Python-to-JavaScript bridge in the exposed builtins, and network/process modules rejected by the AST gate. This is defense in depth, not an OS-level sandbox; retain container memory/CPU limits and move grading to a dedicated no-network service for hostile multi-tenant deployment.
 
 ## Layout
 ```
@@ -33,7 +38,7 @@ src/modules/translation/           sanitize, protect (code masking), prompt, llm
 src/modules/grading/               typing.ts, excel.ts (HyperFormula), exercises.ts, routes.ts, sandbox/pool.ts
 sandbox/                           runner.mjs + harness.py (Pyodide, runs in a throw-away process)
 exercises/{typing,excel,python}/   server-side exercises + expected answers (clients send only an exerciseId)
-migrations/001_init.sql
+migrations/001_init.sql            immutable, checksum-verified under a PostgreSQL advisory lock
 ```
 
 ## How each DoD item is met
@@ -59,12 +64,11 @@ builtins and allowed modules exposed as public non-module attributes only; (3) P
 with an empty environment** (no API keys or DB URLs), killed with SIGKILL after `GRADER_TIMEOUT_MS`; (4) a warm pool replaces each
 used worker, so typical latency is ~10-400 ms.
 
-Known limits: Pyodide cannot run under Node's `--permission` flag, and the child can still make network calls if user code ever
-escaped the AST/builtins layers. For production, run the API in a container with `cap_drop: ALL`, read-only FS and memory/pids
+For production, run the API in a container with `cap_drop: ALL`, read-only FS and memory/pids
 limits (see docker-compose.yml), and ideally move the grader into its own `network_mode: none` service. If the pool is drained
 by a burst, a request waits for a worker to boot (~1.5-2 s), so size `GRADER_POOL_SIZE` for peak concurrency. Typing time is
 client-reported; for high-stakes use, have the server issue the start timestamp.
 
 ## Next steps
-Auth for learner-facing endpoints (the LMS session), a public `/p/:token` page that calls `/v1/verify`, audit logging,
+Auth for learner-facing endpoints (the LMS session), audit logging,
 a Postgres tier for translations if Redis eviction is a concern, and more exercises in `exercises/`.

@@ -7,7 +7,8 @@ export function initPwa() {
   update();
 
   if ('serviceWorker' in navigator && window.isSecureContext) {
-    const register = () => navigator.serviceWorker.register('./sw.js').catch(() => {});
+    const register = () => navigator.serviceWorker.register('./sw.js')
+      .catch((error) => console.error('StepStack service worker registration failed:', error));
     if (document.readyState === 'complete') register();
     else window.addEventListener('load', register);
   }

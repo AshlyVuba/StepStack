@@ -1,124 +1,311 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <!-- Content-Security-Policy: second line of defence against script injection. When the app starts calling
-       the API, add its origin to connect-src here and in _headers. frame-ancestors can only be set by
-       the HTTP header, see _headers. -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0f766e">
-  <title>StepStack – Get started</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' http://localhost:3000; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
+  <meta name="theme-color" content="#55d5bb">
+  <title>StepStack — your future one step at a time</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon-192.png">
-  <link rel="stylesheet" href="src/css/onboarding.css">
+  <link rel="stylesheet" href="src/css/app.css">
   <script type="module" src="src/js/main.js"></script>
 </head>
 <body>
-  <main class="wrap">
-    <header>
-      <h1>StepStack</h1>
-      <p class="tag">Using small steps to improve your tech stack.</p>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="StepStack home"><span class="brand-mark">S</span> StepStack</a>
+      <label class="language-wrap" aria-label="Choose app language">
+        <span>🌍</span>
+        <select id="language">
+          <option value="en">English</option>
+          <option value="zu">isiZulu</option>
+          <option value="xh">isiXhosa</option>
+          <option value="af">Afrikaans</option>
+          <option value="st">Sesotho</option>
+          <option value="tn">Setswana</option>
+          <option value="nso">Sepedi</option>
+          <option value="ts">Xitsonga</option>
+          <option value="ss">siSwati</option>
+          <option value="ve">Tshivenda</option>
+          <option value="nr">isiNdebele</option>
+        </select>
+      </label>
+      <button class="btn btn-dark" id="logout" type="button" hidden>Log out</button>
     </header>
 
-    <div id="session-bar">
-      <p id="net-status" role="status" hidden>You are offline. Your work is saved on this device and will sync when you are back online.</p>
-      <p id="persist-warning" role="status" hidden>Your browser is blocking local storage, so progress will be lost when you close this tab.</p>
-      <p id="idle-warning" role="alert" hidden>You will be logged out soon because of inactivity. Tap or press any key to stay signed in.</p>
-      <button type="button" id="logout" hidden>Log out</button>
-    </div>
-
-    <section id="setup" hidden>
-      <h2>Before you start</h2>
-      <form id="setup-form" novalidate>
-        <fieldset>
-          <legend>Whose device is this?</legend>
-          <div class="options">
-            <label><input type="radio" name="device" value="personal" checked><span>My own device</span><small>Your progress is saved encrypted on this device.</small></label>
-            <label><input type="radio" name="device" value="shared"><span>A shared computer (school, library)</span><small>Protected by a passcode, and you are logged out when idle.</small></label>
+    <main>
+      <!-- SCREEN 1: Welcome + device choice -->
+      <section id="welcomeScreen" class="screen active">
+        <div class="hero">
+          <div class="hero-copy">
+            <p class="eyebrow">A little progress, every day</p>
+            <h1>Small steps.<br><span>Big skills.</span></h1>
+            <p class="hero-description">Build your digital confidence, discover new skills and open doors to your future — one step at a time.</p>
           </div>
-        </fieldset>
-        <div id="setup-pass" hidden>
-          <label class="plain" for="setup-passcode">Choose a passcode (at least 6 characters)</label>
-          <input id="setup-passcode" type="password" autocomplete="new-password">
+          <div class="hero-art" aria-hidden="true">
+            <div class="art-note">✦ Your next skill is waiting</div><div class="art-star">✳</div>
+            <div class="stair"><i></i><i></i><i></i><i></i></div>
+            <div class="art-person">🧑🏾‍💻</div>
+          </div>
         </div>
-        <p id="setup-msg" role="alert"></p>
-        <div class="actions"><button type="submit" class="primary">Continue</button></div>
-      </form>
-    </section>
-
-    <section id="unlock" hidden>
-      <h2>Enter your passcode</h2>
-      <form id="unlock-form" novalidate>
-        <label class="plain" for="unlock-pass">Passcode</label>
-        <input id="unlock-pass" type="password" autocomplete="current-password">
-        <p id="unlock-msg" role="alert"></p>
-        <div class="actions">
-          <button type="button" id="unlock-erase">Erase data on this device</button>
-          <button type="submit" class="primary">Unlock</button>
+        <div class="panel welcome-panel">
+          <h2>Let's get you set up 👋</h2>
+          <p class="muted">Where will you be learning today?</p>
+          <div class="choice-grid">
+            <button class="choice selected" type="button" data-device="personal">
+              <span class="choice-icon">💻</span><strong>My own device</strong>
+              <small>Your progress can be saved so you can continue your journey anytime.</small>
+            </button>
+            <button class="choice" type="button" data-device="shared">
+              <span class="choice-icon">🏫</span><strong>A shared device</strong>
+              <small>Learn safely on a school, library or borrowed computer.</small>
+            </button>
+          </div>
+          <div class="panel-actions"><button class="btn btn-primary" id="letsGoBtn" type="button">Let's go →</button></div>
+          <p class="footnote">Made for every learner, everywhere in South Africa 🇿🇦</p>
         </div>
-      </form>
-    </section>
+      </section>
 
-    <noscript><p class="notice">StepStack needs JavaScript to set up your learning path.</p></noscript>
-
-    <form id="onboarding" hidden novalidate>
-      <progress id="progress" max="3" value="1" aria-label="Setup progress"></progress>
-
-      <fieldset data-step="1">
-        <legend>Where are you starting?</legend>
-        <div class="options" id="opts-tier"></div>
-      </fieldset>
-
-      <fieldset data-step="2" hidden>
-        <legend>How comfortable are you now?</legend>
-        <div class="options" id="opts-level"></div>
-      </fieldset>
-
-      <fieldset data-step="3" hidden>
-        <legend>Which language do you think in?</legend>
-        <div class="options grid" id="opts-lang"></div>
-      </fieldset>
-
-      <nav class="actions">
-        <button type="button" id="back" hidden>Back</button>
-        <button type="submit" id="done" hidden>Start learning</button>
-      </nav>
-    </form>
-
-    <section id="welcome" hidden aria-live="polite">
-      <h2>Welcome back</h2>
-      <p id="summary"></p>
-      <div class="actions">
-        <button type="button" id="restart">Change my setup</button>
-        <button type="button" id="continue" class="primary">Continue</button>
-      </div>
-    </section>
-
-    <section id="workspace" hidden>
-      <div class="lang-bar" role="group" aria-labelledby="ws-lang-label">
-        <span id="ws-lang-label" data-i18n="language"></span>
-        <div id="ws-langs"></div>
-      </div>
-      <progress id="ws-progress" max="3" value="0" aria-labelledby="ws-progress-text"></progress>
-      <p id="ws-progress-text"></p>
-      <ol id="ws-stages"></ol>
-      <article>
-        <p id="ws-kicker" class="kicker"></p>
-        <h2 id="ws-title"></h2>
-        <p id="ws-body"></p>
-        <button type="button" id="ws-hint-btn" data-i18n="hint"></button>
-        <p id="ws-hint" hidden></p>
-        <label class="plain" id="ws-answer-label" for="ws-input" data-i18n="answer"></label>
-        <input id="ws-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
-        <textarea id="ws-textarea" rows="5" hidden></textarea>
-        <div class="actions">
-          <button type="button" id="ws-next" hidden data-i18n="next"></button>
-          <button type="button" id="ws-check" class="primary" data-i18n="check"></button>
+      <!-- SCREEN 2: Learner profile form -->
+      <section id="profileScreen" class="screen">
+        <div class="form-intro">
+          <button class="back-link" id="backToWelcome" type="button">← Back</button>
+          <p class="eyebrow">STEP 1 OF 2 · YOUR STARTING POINT</p>
+          <h1>Let's get to<br><span>know you.</span></h1>
+          <p class="hero-description">A few details help us make your learning journey feel more personal and meet you where you are.</p>
         </div>
-        <p id="ws-feedback" role="status"></p>
-      </article>
-    </section>
-  </main>
+
+        <form id="learnerForm" class="panel profile-form">
+          <div class="form-section">
+            <h2>About you</h2>
+            <div class="form-grid">
+              <div class="field">
+                <label for="firstName">Name</label>
+                <input id="firstName" name="firstName" type="text" placeholder="Your name" autocomplete="given-name" required>
+              </div>
+              <div class="field">
+                <label for="surname">Surname</label>
+                <input id="surname" name="surname" type="text" placeholder="Your surname" autocomplete="family-name" required>
+              </div>
+              <div class="field">
+                <label for="age">Age</label>
+                <input id="age" name="age" type="number" min="5" max="120" placeholder="Your age" required>
+              </div>
+              <div class="field">
+                <label for="education">Current level of education</label>
+                <select id="education" name="education" required>
+                  <option value="" disabled selected>Select your level</option>
+                  <option>Primary school</option>
+                  <option>High school</option>
+                  <option>Matric / Grade 12 completed</option>
+                  <option>TVET college</option>
+                  <option>University / higher education</option>
+                  <option>Skills programme / bootcamp</option>
+                  <option>Currently working</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="field" id="prototypeSharedPass" hidden>
+                <label for="prototypeSharedPasscode">Shared-device passcode (at least 6 characters)</label>
+                <input id="prototypeSharedPasscode" name="passcode" type="password" autocomplete="new-password" minlength="6">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section barrier-section">
+            <div class="section-heading">
+              <div><p class="eyebrow">HELP US HELP YOU</p><h2>The 4 barriers</h2></div>
+              <span class="multi-tag">Select all that apply</span>
+            </div>
+            <p class="muted barrier-intro">Which of these make learning digital skills difficult for you? There are no wrong answers.</p>
+            <div class="barrier-list">
+              <label class="barrier-option">
+                <input type="checkbox" name="barriers" value="first-step">
+                <span class="barrier-number">01</span>
+                <span class="barrier-copy"><strong>High First-Step Barrier</strong><small>I struggle with basic typing, using a mouse, or navigating a computer.</small></span>
+                <span class="checkmark">✓</span>
+              </label>
+              <label class="barrier-option">
+                <input type="checkbox" name="barriers" value="english-friction">
+                <span class="barrier-number">02</span>
+                <span class="barrier-copy"><strong>English-Only Friction</strong><small>Learning content in English can feel overwhelming or hard to understand.</small></span>
+                <span class="checkmark">✓</span>
+              </label>
+              <label class="barrier-option">
+                <input type="checkbox" name="barriers" value="passive-video">
+                <span class="barrier-number">03</span>
+                <span class="barrier-copy"><strong>Passive Video Trap</strong><small>I watch tutorials, but I need more chances to practise by doing.</small></span>
+                <span class="checkmark">✓</span>
+              </label>
+              <label class="barrier-option">
+                <input type="checkbox" name="barriers" value="fragmented-tools">
+                <span class="barrier-number">04</span>
+                <span class="barrier-copy"><strong>Fragmented Tools</strong><small>Switching between different apps, websites, or platforms makes learning harder.</small></span>
+                <span class="checkmark">✓</span>
+              </label>
+            </div>
+          </div>
+          <div class="form-section">
+            <div class="section-heading">
+              <div><p class="eyebrow">YOUR NEXT MOVE</p><h2>What would you like to achieve?</h2></div>
+              <span class="multi-tag">Select all that apply</span>
+            </div>
+            <div class="goal-grid">
+              <label class="goal-option"><input type="checkbox" name="goals" value="foundational"><span>⌨️</span><strong>Typing &amp; computer basics</strong></label>
+              <label class="goal-option"><input type="checkbox" name="goals" value="workplace"><span>💼</span><strong>Prepare for the workplace</strong></label>
+              <label class="goal-option"><input type="checkbox" name="goals" value="developer"><span>💻</span><strong>Learn programming / development</strong></label>
+              <label class="goal-option"><input type="checkbox" name="goals" value="upskill"><span>🎓</span><strong>Take courses or certifications</strong></label>
+              <label class="goal-option"><input type="checkbox" name="goals" value="finance"><span>💰</span><strong>Improve my financial literacy</strong></label>
+            </div>
+          </div>
+          <div class="form-footer">
+            <p class="footnote">Your answers help us recommend a starting point. You can change them later.</p>
+            <button class="btn btn-primary" type="submit">Build my learning path →</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- SCREEN 3: Dashboard -->
+      <section id="dashboardScreen" class="screen">
+        <div class="dashboard-header">
+          <div><p class="muted greeting" id="greeting">Welcome, learner 👋</p><h2>Ready for your next step?</h2></div>
+          <div class="header-actions"><div class="xp-badge">⭐ <span id="headerXp">120 XP</span></div><div class="avatar">🌱</div></div>
+        </div>
+
+        <div class="journey-overview">
+          <section class="recommendation-card" id="recommendationCard">
+            <div class="recommendation-decoration"><span>✦</span><span>●</span></div>
+            <div class="recommendation-copy">
+              <p class="eyebrow dark-eyebrow">YOUR BEST NEXT STEP</p>
+              <h3 id="recommendationTitle">Typing &amp; Computer Basics</h3>
+              <p id="recommendationDescription">Build confidence through typing, mouse skills, computer basics and safe internet use.</p>
+              <button class="btn btn-dark" id="recommendedPathBtn" type="button" data-path="foundational">Start this pathway →</button>
+            </div>
+            <div class="recommendation-emoji" id="recommendationEmoji">⌨️</div>
+          </section>
+
+          <aside class="dashboard-side">
+            <div class="daily-card">
+              <div><p class="eyebrow dark-eyebrow">YOUR DAILY STEP</p><h3>15 minutes<br>can change a lot.</h3><button class="btn btn-dark" id="dailyBtn">Continue learning →</button></div>
+              <div class="streak">🔥 3-day streak</div>
+            </div>
+            <div class="stats-grid">
+              <div class="stat-card"><span>⭐</span><div><strong id="pointsValue">120 XP</strong><small>Total points</small></div></div>
+              <div class="stat-card"><span>✓</span><div><strong id="lessonsValue">2 lessons</strong><small>Completed</small></div></div>
+            </div>
+          </aside>
+        </div>
+
+        <section class="choice-summary" aria-labelledby="choiceSummaryTitle">
+          <div class="section-heading">
+            <div><p class="eyebrow">YOUR SELECTIONS</p><h3 id="choiceSummaryTitle">Learning options based on your goals</h3></div>
+            <span class="muted" id="choiceCount">0 goals selected</span>
+          </div>
+          <div id="goalCategories" class="goal-categories"></div>
+        </section>
+
+        <section class="ranked-options">
+          <div class="section-heading"><div><p class="eyebrow">PERSONALISED FOR YOU</p><h3>Pathways matched to your answers</h3></div><span class="muted">Ranked by fit</span></div>
+          <div id="rankedPathways" class="ranked-pathways"></div>
+        </section>
+
+        <section class="activity-section">
+          <div class="section-heading"><h3>Today’s recommended activity</h3><span class="muted">5-minute practice</span></div>
+          <div class="activity-card">
+            <div class="activity-icon" id="activityIcon">⌨️</div>
+            <div class="activity-copy"><p class="eyebrow dark-eyebrow">PRACTISE BY DOING</p><h3 id="activityTitle">Try a typing warm-up</h3><p id="activityDescription">Build speed and confidence with a short hands-on activity.</p></div>
+            <button class="btn btn-dark" id="activityBtn" type="button">Start →</button>
+          </div>
+        </section>
+
+        <section class="pathway-section">
+          <div class="section-heading"><div><p class="eyebrow">EXPLORE MORE</p><h3>Choose your next step</h3></div><button class="text-button" id="viewAllBtn">View all →</button></div>
+          <div class="pathway-grid">
+            <button class="pathway-card pathway-foundational" type="button" data-path="foundational"><span>⌨️</span><div><strong>Typing &amp; Computer Basics</strong><small>Type, navigate and use a computer confidently</small></div><b>Explore →</b></button>
+            <button class="pathway-card pathway-workplace" type="button" data-path="workplace"><span>💼</span><div><strong>Workplace Ready</strong><small>Skills for work and professional life</small></div><b>Explore →</b></button>
+            <button class="pathway-card pathway-developer" type="button" data-path="developer"><span>💻</span><div><strong>Developer Mode</strong><small>Code, create and build projects</small></div><b>Explore →</b></button>
+            <button class="pathway-card pathway-upskill" type="button" data-path="upskill"><span>🎓</span><div><strong>Upskill &amp; Training</strong><small>Courses, certificates and careers</small></div><b>Explore →</b></button>
+            <button class="pathway-card pathway-finance" type="button" data-path="finance"><span>💰</span><div><strong>Financial Literacy</strong><small>Understand money and make better choices</small></div><b>Explore →</b></button>
+          </div>
+        </section>
+
+        <section class="achievement-section">
+          <div class="section-heading"><h3>Achievements</h3><span class="muted">1 unlocked</span></div>
+          <div class="achievement-grid">
+            <div class="achievement unlocked"><span>🌱</span><strong>First Step</strong><small>Profile complete</small></div>
+            <div class="achievement"><span>🔥</span><strong>On a Roll</strong><small>3-day streak</small></div>
+            <div class="achievement"><span>🏆</span><strong>Path Finder</strong><small>Finish 5 lessons</small></div>
+          </div>
+        </section>
+
+        <nav class="bottom-nav"><button class="nav-btn active" data-nav="home">⌂ Home</button><button class="nav-btn" data-nav="learn">▦ Learn</button><button class="nav-btn" data-nav="progress">♧ Progress</button><button class="nav-btn" data-nav="profile">☺ Profile</button></nav>
+      </section>
+
+      <!-- SCREEN 4: Course detail -->
+      <section id="courseScreen" class="screen">
+        <button class="btn btn-dark back-button" id="backToDashboard" type="button">← Back to learning</button>
+        <div class="detail-hero">
+          <p class="eyebrow detail-eyebrow">YOUR LEARNING PATH</p>
+          <div class="detail-emoji" id="courseEmoji">👩🏾‍💻</div>
+          <h2 id="courseTitle">Code your first website</h2>
+          <p id="courseDescription">Start from the basics and create your first little website.</p>
+          <button class="btn btn-dark" id="startLesson" type="button">Start learning ▶</button>
+        </div>
+        <div class="section-heading"><h3>Course preview</h3><span class="muted">Lessons</span></div>
+        <div class="lesson-list" id="lessonList"></div>
+      </section>
+
+      <!-- SCREEN 4: Pathway detail -->
+      <section id="pathwayScreen" class="screen">
+        <button class="btn btn-dark back-button" id="backFromPathway" type="button">← Back to dashboard</button>
+        <div class="detail-hero pathway-detail">
+          <p class="eyebrow detail-eyebrow">YOUR LEARNING PATHWAY</p>
+          <div class="detail-emoji" id="pathEmoji">⌨️</div>
+          <h2 id="pathTitle">Typing &amp; Computer Basics</h2>
+          <p id="pathDescription">Build your digital confidence from the ground up.</p>
+          <button class="btn btn-dark" id="startPathLesson" type="button">Start first lesson ▶</button>
+        </div>
+        <div class="progress-summary">
+          <div><strong id="pathProgressValue">0%</strong><small>Pathway progress</small></div>
+          <div class="progress"><span id="pathProgressBar" style="width:0%"></span></div>
+        </div>
+        <div class="section-heading"><h3>Lesson preview</h3><span class="muted" id="lessonCount">7 lessons</span></div>
+        <div class="lesson-list" id="pathLessonList"></div>
+      </section>
+
+      <section id="workspaceScreen" class="screen">
+        <button class="btn btn-dark back-button" id="backToPathway" type="button">← Back to pathway</button>
+        <div class="panel practice-panel">
+          <p class="eyebrow">PRACTISE BY DOING</p>
+          <h2 id="practiceTitle"></h2>
+          <p id="practicePrompt" class="practice-prompt"></p>
+          <p id="practiceHint" class="muted"></p>
+          <label for="practiceAnswer">Your answer</label>
+          <textarea id="practiceAnswer" rows="8" spellcheck="false"></textarea>
+          <button class="btn btn-primary" id="gradePractice" type="button">Check answer</button>
+          <p id="practiceFeedback" role="status"></p>
+        </div>
+      </section>
+
+      <section id="unlockScreen" class="screen">
+        <div class="panel unlock-panel">
+          <p class="eyebrow">SHARED DEVICE</p>
+          <h1>Welcome back.</h1>
+          <p id="unlockMessage" class="muted">Enter your passcode to continue.</p>
+          <form id="unlockForm">
+            <label for="unlockPass">Passcode</label>
+            <input id="unlockPass" type="password" autocomplete="current-password" required>
+            <button class="btn btn-primary" type="submit">Unlock</button>
+          </form>
+          <button class="text-button" id="unlockErase" type="button">Erase data on this device</button>
+        </div>
+      </section>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status"></div>
+  <p class="status-note" id="net-status" role="status" hidden>You are offline. Saved practice can sync when you reconnect.</p>
+  <p class="status-note" id="persist-warning" hidden>Progress will not persist after closing this page because browser storage is unavailable.</p>
+  <p class="status-note" id="idle-warning" hidden>Your session will close soon due to inactivity.</p>
 </body>
 </html>

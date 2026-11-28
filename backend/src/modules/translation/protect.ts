@@ -52,12 +52,12 @@ export function protect(input: string): Protected {
 }
 
 export function restore(text: string, slots: string[]): { text: string; intact: boolean } {
-  const seen = new Set<number>();
+  const seen = new Array(slots.length).fill(0);
   const restored = text.replace(/⟦\s*(\d+)\s*⟧/g, (m, n) => {
     const idx = Number(n);
-    if (idx < slots.length) { seen.add(idx); return slots[idx]!; }
+    if (idx < slots.length) { seen[idx] += 1; return slots[idx]!; }
     return m;
   });
-  const intact = seen.size === slots.length && !/⟦|⟧/.test(restored);
+  const intact = seen.every((count) => count === 1) && !/⟦|⟧/.test(restored);
   return { text: restored, intact };
 }

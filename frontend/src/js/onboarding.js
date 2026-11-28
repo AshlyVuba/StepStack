@@ -1,135 +1,122 @@
-import { TIERS, LEVELS, LANGUAGES } from './config.js';
-import { loadProfile, saveProfile, clearProfile } from './storage.js';
+import { PATHWAYS } from './config.js';
 
 const $ = (id) => document.getElementById(id);
-const form = $('onboarding');
-const welcome = $('welcome');
-const steps = [...form.querySelectorAll('fieldset')];
-const FIELDS = ['tier', 'level', 'language'];
-const find = (list, key, val) => list.find((x) => x[key] === val);
+const GREETINGS = {
+  en: 'Welcome', zu: 'Sawubona', xh: 'Molo', af: 'Welkom',
+  st: 'Dumela', tn: 'Dumela', nso: 'Thobela', ts: 'Avuxeni',
+  ss: 'Sawubona', ve: 'Ndaa', nr: 'Lotjhani'
+};
 
-let profile = {};
-let step = 0;
-let epoch = 0;   // bumped on logout so a slow load cannot repopulate a cleared page
+const BARRIER_WEIGHTS = {
+  'first-step': { foundational: 6 },
+  'english-friction': { foundational: 4, upskill: 2 },
+  'passive-video': { developer: 3, upskill: 3, foundational: 1 },
+  'fragmented-tools': { upskill: 4, foundational: 2 }
+};
 
-function render(container, name, items, labelOf, hintOf, keyName) {
-  const frag = document.createDocumentFragment();
-  items.forEach((item) => {
-    const value = item[keyName];
-    const label = document.createElement('label');
-    const input = document.createElement('input');
-    input.type = 'radio';
-    input.name = name;
-    input.value = value;
-    input.checked = profile[name] === value;
-    const text = document.createElement('span');
-    text.textContent = labelOf(item);
-    label.append(input, text);
-    const hint = hintOf(item);
-    if (hint) {
-      const small = document.createElement('small');
-      small.textContent = hint;
-      label.append(small);
-    }
-    frag.append(label);
+export function recommend(profile) {
+  const scores = Object.fromEntries(Object.keys(PATHWAYS).map((key) => [key, 0]));
+  (profile.barriers || []).forEach((barrier) => {
+    Object.entries(BARRIER_WEIGHTS[barrier] || {}).forEach(([key, points]) => { scores[key] += points; });
   });
-  container.replaceChildren(frag);
+  (profile.goals || []).forEach((goal) => { if (Object.hasOwn(scores, goal)) scores[goal] += 5; });
+  if (profile.education === 'Currently working') scores.workplace += 4;
+  if (['Primary school', 'High school'].includes(profile.education)) scores.foundational += 2;
+  if (profile.education === 'Skills programme / bootcamp') scores.upskill += 3;
+  const ranked = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+  return { primary: ranked[0][0], ranked };
 }
 
-function buildOptions() {
-  render($('opts-tier'), 'tier', TIERS, (t) => t.label, (t) => t.hint, 'id');
-  render($('opts-level'), 'level', LEVELS, (l) => l.label, (l) => l.hint, 'id');
-  render($('opts-lang'), 'language', LANGUAGES, (l) => l.native, () => '', 'code');
+function appendGoal(container, goal, onOpen) {
+  const path = PATHWAYS[goal];
+  if (!path) return;
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'goal-category';
+  button.dataset.path = goal;
+  button.append(document.createTextNode(`${path.emoji} ${path.title}`));
+  button.addEventListener('click', () => onOpen(goal));
+  container.append(button);
 }
 
-function show(n) {
-  step = n;
-  steps.forEach((s, i) => { s.hidden = i !== n; });
-  $('progress').value = n + 1;
-  $('back').hidden = n === 0;
-  $('done').hidden = !(n === steps.length - 1 && profile.language);
-  const checked = steps[n].querySelector('input:checked') || steps[n].querySelector('input');
-  if (checked) checked.focus({ preventScroll: true });
+export function renderDashboard(profile, onOpenPathway) {
+  const recommendation = profile.recommendation || recommend(profile);
+  profile.recommendation = recommendation;
+  const primary = PATHWAYS[recommendation.primary] || PATHWAYS.foundational;
+  $('greeting').textContent = `${GREETINGS[profile.language] || 'Welcome'}, ${profile.firstName} 👋`;
+  $('recommendationTitle').textContent = primary.title;
+  $('recommendationDescription').textContent = primary.description;
+  $('recommendationEmoji').textContent = primary.emoji;
+  $('recommendedPathBtn').dataset.path = recommendation.primary;
+  $('choiceCount').textContent = `${profile.goals.length} ${profile.goals.length === 1 ? 'goal' : 'goals'} selected`;
+
+  const goals = $('goalCategories');
+  goals.replaceChildren();
+  if (!profile.goals.length) {
+    const empty = document.createElement('p');
+    empty.className = 'muted';
+    empty.textContent = 'Explore all five pathways below.';
+    goals.append(empty);
+  } else profile.goals.forEach((goal) => appendGoal(goals, goal, onOpenPathway));
+
+  const ranked = $('rankedPathways');
+  ranked.replaceChildren();
+  recommendation.ranked.forEach(([key, score], index) => {
+    const path = PATHWAYS[key];
+    if (!path) return;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = `ranked-pathway${index === 0 ? ' ranked-primary' : ''}`;
+    button.dataset.path = key;
+    button.append(document.createTextNode(`${path.emoji} ${path.title} · ${score}`));
+    button.addEventListener('click', () => onOpenPathway(key));
+    ranked.append(button);
+  });
+  $('headerXp').textContent = `${profile.xp || 0} XP`;
+  $('pointsValue').textContent = `${profile.xp || 0} XP`;
+  $('lessonsValue').textContent = `${profile.completedLessons || 0} ${profile.completedLessons === 1 ? 'lesson' : 'lessons'}`;
+
+  const activity = {
+    'first-step': ['⌨️', 'Try a typing warm-up', 'Build speed and confidence with a short hands-on activity.'],
+    'english-friction': ['🌍', 'Explore language-supported learning', 'Choose one of the supported South African languages.'],
+    'passive-video': ['✋', 'Complete a hands-on activity', 'Learn by doing instead of only watching a tutorial.'],
+    'fragmented-tools': ['🔗', 'Follow one guided step', 'Complete a focused activity inside StepStack.']
+  }[profile.barriers[0]] || ['🚀', 'Start your first 5-minute step', 'Choose a pathway and complete a short hands-on lesson.'];
+  $('activityIcon').textContent = activity[0];
+  $('activityTitle').textContent = activity[1];
+  $('activityDescription').textContent = activity[2];
 }
 
-function firstIncomplete() {
-  const i = FIELDS.findIndex((f) => !profile[f]);
-  return i === -1 ? FIELDS.length - 1 : i;
+export function bindOnboarding({ onSubmit, onLanguageChange, getDevice }) {
+  $('learnerForm').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const data = new window.FormData(event.currentTarget);
+    const profile = {
+      firstName: String(data.get('firstName') || '').trim(),
+      surname: String(data.get('surname') || '').trim(),
+      age: Number(data.get('age')),
+      education: String(data.get('education') || ''),
+      barriers: data.getAll('barriers').map(String),
+      goals: data.getAll('goals').map(String),
+      device: getDevice(),
+      language: $('language').value || 'en',
+      xp: 120,
+      completedLessons: 0,
+      streak: 0
+    };
+    profile.recommendation = recommend(profile);
+    await onSubmit(profile, $('prototypeSharedPasscode').value);
+  });
+
+  $('language').addEventListener('change', (event) => onLanguageChange(event.currentTarget.value));
 }
 
-function describe() {
-  const tier = find(TIERS, 'id', profile.tier);
-  const level = find(LEVELS, 'id', profile.level);
-  const lang = find(LANGUAGES, 'code', profile.language);
-  return `${tier.label} · ${level.label} · ${lang.native}`;
-}
-
-function isComplete() {
-  return FIELDS.every((f) => profile[f]) &&
-    find(TIERS, 'id', profile.tier) && find(LEVELS, 'id', profile.level) &&
-    find(LANGUAGES, 'code', profile.language);
-}
-
-function showForm() {
-  welcome.hidden = true;
-  form.hidden = false;
-  buildOptions();
-  show(firstIncomplete());
-}
-
-function showWelcome() {
-  form.hidden = true;
-  welcome.hidden = false;
-  document.documentElement.lang = profile.language;
-  $('summary').textContent = describe();
-  $('continue').focus({ preventScroll: true });
-}
-
-// Selecting an option saves immediately (survives reloads mid-flow) and
-// auto-advances so the whole flow is three taps.
-form.addEventListener('change', (e) => {
-  const { name, value } = e.target;
-  if (!FIELDS.includes(name)) return;
-  profile = { ...profile, [name]: value };
-  saveProfile(profile);
-  if (step < steps.length - 1) show(step + 1);
-  else $('done').hidden = false;
-});
-
-$('back').addEventListener('click', () => show(Math.max(0, step - 1)));
-
-form.addEventListener('submit', (e) => {
-  e.preventDefault();
-  if (!isComplete()) return show(firstIncomplete());
-  profile = { ...profile, completedAt: new Date().toISOString() };
-  saveProfile(profile);
-  showWelcome();
-});
-
-$('restart').addEventListener('click', () => { profile = {}; clearProfile(); showForm(); });
-
-// Hands the learner profile to the exercise workspace (workspace.js).
-$('continue').addEventListener('click', () => {
-  welcome.hidden = true;
-  document.dispatchEvent(new CustomEvent('stepstack:onboarded', { detail: profile }));
-});
-
-export async function startOnboarding() {
-  const mine = epoch;
-  const saved = await loadProfile();
-  if (mine !== epoch) return;
-  profile = saved || {};
-  if (profile.completedAt && isComplete()) showWelcome(); else showForm();
-}
-
-// Wipes everything this module holds in memory and on the page (used on logout).
-export function clearOnboarding() {
-  epoch += 1;
-  profile = {};
-  step = 0;
-  form.hidden = true;
-  welcome.hidden = true;
-  $('summary').textContent = '';
-  ['opts-tier', 'opts-level', 'opts-lang'].forEach((id) => $(id).replaceChildren());
-  document.documentElement.lang = 'en';
+export function clearProfileView() {
+  $('choiceCount').textContent = '0 goals selected';
+  $('activityIcon').textContent = '';
+  $('activityTitle').textContent = '';
+  $('activityDescription').textContent = '';
+  $('headerXp').textContent = '';
+  $('pointsValue').textContent = '';
+  $('lessonsValue').textContent = '';
 }

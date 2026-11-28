@@ -15,6 +15,7 @@ ALLOWED_MODULES = {
     "math", "statistics", "itertools", "functools", "collections", "string", "re", "random",
     "datetime", "json", "typing", "decimal", "fractions", "heapq", "bisect", "copy",
 }
+NETWORK_MODULES = {"js", "pyodide", "socket", "ssl", "http", "urllib", "requests", "webbrowser"}
 BLOCKED_NAMES = {
     "eval", "exec", "compile", "open", "input", "breakpoint", "globals", "locals", "vars", "getattr",
     "setattr", "delattr", "exit", "quit", "help", "memoryview", "type", "dir", "__import__",
@@ -42,10 +43,14 @@ def validate(tree):
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
             for a in node.names:
+                if a.name.split(".")[0] in NETWORK_MODULES:
+                    raise Reject(f"network access through '{a.name}' is not allowed")
                 if "." in a.name or a.name not in ALLOWED_MODULES:
                     raise Reject(f"import of '{a.name}' is not allowed")
         elif isinstance(node, ast.ImportFrom):
             m = node.module or ""
+            if m.split(".")[0] in NETWORK_MODULES:
+                raise Reject(f"network access through '{m}' is not allowed")
             if node.level or "." in m or m not in ALLOWED_MODULES:
                 raise Reject(f"import from '{m}' is not allowed")
             if any(a.name == "*" for a in node.names):
